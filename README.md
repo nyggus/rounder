@@ -231,7 +231,7 @@ But you have to remember that when you request a deepcopy (with `use_copy=True`)
 >>> gen_2_copied_rounded = r.round_object(gen_2, use_copy=True)
 Traceback (most recent call last):
     ...
-TypeError: cannot pickle 'generator' object
+rounding.rounding.UnpickableObjectError: cannot pickle 'generator' object
 
 ```
 
