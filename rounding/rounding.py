@@ -16,6 +16,12 @@ class RoundingError(Exception):
 
 
 class Rounder:
+    """Class for rounding complex objects in Python.
+    
+    The class is private inside the package, and is not to be used by
+    the user. Instead, four functions that run the class should be used:
+    round_object(), floor_object(), ceil_object() and signif_object().
+    """
     def __init__(self, x, digits=0, method="round"):
         self.x = x
         self.digits = digits
@@ -63,6 +69,8 @@ class Rounder:
             )
 
     def __call__(self):
+        if isinstance(self.x, int) and self.method == "signif":
+            return int(self.run_method())
         if isinstance(self.x, (int, str)):
             return self.x
         elif isinstance(self.x, complex):
@@ -100,21 +108,121 @@ class Rounder:
 
 
 def round_object(x, digits=0, use_copy=False):
+    """Round numbers in a Python object.
+    
+    Args:
+        x (any): any Python object
+        digits (int, optional): number of digits. Defaults to 0.
+        use_copy (bool, optional): use a deep copy or work with the original
+            object? Defaults to False, in which case mutable objects (a list
+            or a dict, for instance) will be affect inplace.
+
+    Returns:
+        any: the object with values rounded to requested number of digits
+    
+    >>> round_object(12.12, 1)
+    12.1
+    >>> round_object("string", 1)
+    'string'
+    >>> round_object(["Shout", "Bamalama"])
+    ['Shout', 'Bamalama']
+    >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
+    >>> round_object(obj, 2)
+    {'number': 12.32, 'string': 'whatever', 'list': [122.45, 0.01]}
+    """
     y = deepcopy(x) if use_copy else x
     return Rounder(y, digits, method="round")()
 
 
 def floor_object(x, use_copy=False):
+    """Round numbers in a Python object, using the floor algorithm.
+    
+    This means rounding to the closest smaller integer.
+    
+    Args:
+        x (any): any Python object
+        use_copy (bool, optional): use a deep copy or work with the original
+            object? Defaults to False, in which case mutable objects (a list
+            or a dict, for instance) will be affect inplace.
+
+    Returns:
+        any: the object with values floor-rounded to requested number of
+            digits
+    
+    >>> floor_object(12.12)
+    12
+    >>> floor_object("string")
+    'string'
+    >>> floor_object(["Shout", "Bamalama"])
+    ['Shout', 'Bamalama']
+    >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
+    >>> floor_object(obj)
+    {'number': 12, 'string': 'whatever', 'list': [122, 0]}
+    """
     y = deepcopy(x) if use_copy else x
     return Rounder(y, 0, method="floor")()
 
 
 def ceil_object(x, use_copy=False):
+    """Round numbers in a Python object, using the ceiling algorithm.
+    
+    This means rounding to the closest greater integer.
+    
+    Args:
+        x (any): any Python object
+        use_copy (bool, optional): use a deep copy or work with the original
+            object? Defaults to False, in which case mutable objects (a list
+            or a dict, for instance) will be affect inplace.
+
+    Returns:
+        any: the object with values ceiling-rounded to requested number of digits
+    
+    >>> ceil_object(12.12)
+    13
+    >>> ceil_object("string")
+    'string'
+    >>> ceil_object(["Shout", "Bamalama"])
+    ['Shout', 'Bamalama']
+    >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
+    >>> ceil_object(obj)
+    {'number': 13, 'string': 'whatever', 'list': [123, 1]}"""
     y = deepcopy(x) if use_copy else x
     return Rounder(y, 0, method="ceil")()
 
 
 def signif_object(x, digits, use_copy=False):
+    """Round numbers in a Python object to requested significant digits.
+    
+    Args:
+        x (any): any Python object
+        digits (int, optional): number of digits.
+        use_copy (bool, optional): use a deep copy or work with the original
+            object? Defaults to False, in which case mutable objects (a list
+            or a dict, for instance) will be affect inplace.
+
+    Returns:
+        any: the object with values rounded to requested number of significant
+            digits
+    
+    >>> signif_object(12.12, 3)
+    12.1
+    >>> signif_object(.1212, 3)
+    0.121
+    >>> signif_object(.00001212, 3)
+    1.21e-05
+    >>> signif_object(.00001219, 3)
+    1.22e-05
+    >>> signif_object(1212.0, 3)
+    1210.0
+        
+    >>> signif_object("string", 1)
+    'string'
+    >>> signif_object(["Shout", "Bamalama"], 5)
+    ['Shout', 'Bamalama']
+    >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
+    >>> signif_object(obj, 3)
+    {'number': 12.3, 'string': 'whatever', 'list': [122.0, 0.01]}
+    """
     y = deepcopy(x) if use_copy else x
     return Rounder(y, digits, method="signif")()
 
