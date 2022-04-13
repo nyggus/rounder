@@ -5,10 +5,13 @@ from math import ceil as orig_ceil
 from math import floor as orig_floor
 from math import log10, pow
 
+
 orig_round = round
+
 
 class RoundingError(Exception):
     """Exception class to be used across the package."""
+
     pass
 
 
@@ -23,16 +26,16 @@ class Rounder:
         check_if(
             self.digits >= 0,
             handle_with=RoundingError,
-            message="Argument digits must be 0 or bigger."
+            message="Argument digits must be 0 or bigger.",
         )
         check_argument(
-            self.method, "method",
+            self.method,
+            "method",
             expected_instance=str,
             expected_choices=("round", "ceil", "floor", "signif"),
-            handle_with=RoundingError
+            handle_with=RoundingError,
         )
-        
-    
+
     def run_method(self):
         if self.method == "round":
             return orig_round(self.x, self.digits)
@@ -42,8 +45,7 @@ class Rounder:
             return orig_ceil(self.x)
         elif self.method == "signif":
             return signif(self.x, self.digits)
-    
-    
+
     def run_method_for_complex_number(self):
         if self.method == "round":
             return (
@@ -51,21 +53,15 @@ class Rounder:
                 + orig_round(self.x.imag, self.digits) * 1j
             )
         elif self.method == "floor":
-            return (
-                orig_floor(self.x.real)
-                + orig_floor(self.x.imag) * 1j
-            )
+            return orig_floor(self.x.real) + orig_floor(self.x.imag) * 1j
         elif self.method == "ceil":
-            return (
-                orig_ceil(self.x.real)
-                + orig_ceil(self.x.imag) * 1j
-            )
+            return orig_ceil(self.x.real) + orig_ceil(self.x.imag) * 1j
         elif self.method == "signif":
             return (
                 signif(self.x.real, self.digits)
                 + signif(self.x.imag, self.digits) * 1j
             )
-        
+
     def __call__(self):
         if isinstance(self.x, (int, str)):
             return self.x
@@ -80,7 +76,7 @@ class Rounder:
             if self.x.typecode == "f":
                 list_x = list(self.x)
                 for i, v in enumerate(self.x):
-                    #breakpoint()
+                    # breakpoint()
                     list_x[i] = Rounder(v, self.digits, self.method)()
                 self.x = array.array("f", list_x)
         elif isinstance(self.x, tuple):
@@ -109,7 +105,6 @@ def round_object(x, digits=0, use_copy=False):
     return Rounder(y, digits, method="round")()
 
 
-
 def floor_object(x, use_copy=False):
     y = deepcopy(x) if use_copy else x
     return Rounder(y, 0, method="floor")()
@@ -126,8 +121,8 @@ def signif_object(x, digits, use_copy=False):
 
 
 def signif(x, digits=3):
-    """Round number to significant digits. 
-    
+    """Round number to significant digits.
+
     Translated from Java algorithm available on
     <a href="http://stackoverflow.com/questions/202302">Stack Overflow</a>
 
@@ -137,7 +132,7 @@ def signif(x, digits=3):
 
     Returns:
         float or int: x rounded to significant digits
-    
+
     >>> signif(1.2222, 3)
     1.22
     >>> signif(12222, 3)
@@ -156,14 +151,17 @@ def signif(x, digits=3):
     try:
         x = float(x)
     except (TypeError, ValueError):
-        raise TypeError(f"x must be an int or a float, not '{type(x).__name__}'")
+        raise TypeError(
+            f"x must be an int or a float, not '{type(x).__name__}'"
+        )
     d = orig_ceil(log10(-x if x < 0 else x))
     power = digits - d
     magnitude = pow(10, power)
     shifted = orig_round(x * magnitude)
-    return shifted/magnitude
-    
+    return shifted / magnitude
+
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

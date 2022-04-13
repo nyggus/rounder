@@ -1,6 +1,7 @@
 import pytest
 from copy import deepcopy
 
+
 @pytest.fixture(scope="session")
 def n():
     return 10
@@ -24,13 +25,17 @@ def digits_range():
 @pytest.fixture()
 def complex_object():
     obj = {
-        'a':12.22221111,
-        'string': "something nice, ha?",
+        "a": 12.22221111,
+        "string": "something nice, ha?",
         "callable": lambda x: x**2,
-        'b':2,
-        'c':1.222,
-        'd': [1.12343, .023492],
-        'e': {'ea': 1/44, 'eb': {1.333, 2.999}, 'ec': dict(eca=1.565656, ecb=1.765765765)}
+        "b": 2,
+        "c": 1.222,
+        "d": [1.12343, 0.023492],
+        "e": {
+            "ea": 1 / 44,
+            "eb": {1.333, 2.999},
+            "ec": dict(eca=1.565656, ecb=1.765765765),
+        },
     }
     return deepcopy(obj)
 
