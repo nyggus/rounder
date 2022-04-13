@@ -41,7 +41,7 @@ class Rounder:
         elif self.method == "ceil":
             return orig_ceil(self.x)
         elif self.method == "signif":
-            return self.signif_object(self.x)
+            return signif(self.x, self.digits)
     
     
     def run_method_for_complex_number(self):
@@ -62,22 +62,9 @@ class Rounder:
             )
         elif self.method == "signif":
             return (
-                self.signif_object(self.x.real)
-                + orig_round(self.x.imag) * 1j
+                signif(self.x.real, self.digits)
+                + signif(self.x.imag, self.digits) * 1j
             )
-        
-    def signif_object(self, x):
-        """
-        Translated from Java algorithm available on
-        <a href="http://stackoverflow.com/questions/202302">Stack Overflow</a>"""
-        if x == 0:
-            return 0
-        x = float(x)
-        d = orig_ceil(log10(-x if x < 0 else x))
-        power = self.digits - d
-        magnitude = pow(10, power)
-        shifted = orig_round(x * magnitude);
-        return shifted/magnitude
         
     def __call__(self):
         if isinstance(self.x, (int, str)):
@@ -138,7 +125,44 @@ def signif_object(x, digits, use_copy=False):
     return Rounder(y, digits, method="signif")()
 
 
-signif = signif_object
+def signif(x, digits=3):
+    """Round number to significant digits. 
+    
+    Translated from Java algorithm available on
+    <a href="http://stackoverflow.com/questions/202302">Stack Overflow</a>
+
+    Args:
+        x (float, int): a value to be rounded
+        digits (int, optional): number of significant digits. Defaults to 3.
+
+    Returns:
+        float or int: x rounded to significant digits
+    
+    >>> signif(1.2222, 3)
+    1.22
+    >>> signif(12222, 3)
+    12200.0
+    >>> signif(1, 3)
+    1.0
+    >>> signif(123.123123, 5)
+    123.12
+    >>> signif(123.123123, 3)
+    123.0
+    >>> signif(123.123123, 1)
+    100.0
+    """
+    if x == 0:
+        return 0
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        raise TypeError(f"x must be an int or a float, not '{type(x).__name__}'")
+    d = orig_ceil(log10(-x if x < 0 else x))
+    power = digits - d
+    magnitude = pow(10, power)
+    shifted = orig_round(x * magnitude)
+    return shifted/magnitude
+    
 
 if __name__ == "__main__":
     import doctest

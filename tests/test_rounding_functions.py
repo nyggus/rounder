@@ -1,3 +1,4 @@
+import pytest
 import rounding as r
 import random
 from copy import deepcopy
@@ -149,7 +150,7 @@ def test_with_non_roundable_items_dicts():
     assert r.signif_object({"phrase": "Shout Bamalama!"}, 5) == {"phrase": "Shout Bamalama!"}
 
 
-def test_round_for_complex_object(complex_object):
+def test_round_object_for_complex_object(complex_object):
     rounded_complex_object = r.round_object(complex_object, 3, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.222
@@ -161,7 +162,7 @@ def test_round_for_complex_object(complex_object):
     assert rounded_complex_object["d"] == [1.123, 0.023]
 
 
-def test_ceil_for_complex_object(complex_object):
+def test_ceil_object_for_complex_object(complex_object):
     rounded_complex_object = r.ceil_object(complex_object, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 13
@@ -173,7 +174,7 @@ def test_ceil_for_complex_object(complex_object):
     assert rounded_complex_object["d"] == [2, 1]
 
 
-def test_floor_for_complex_object(complex_object):
+def test_floor_object_for_complex_object(complex_object):
     rounded_complex_object = r.floor_object(complex_object, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12
@@ -185,7 +186,7 @@ def test_floor_for_complex_object(complex_object):
     assert rounded_complex_object["d"] == [1, 0]
 
 
-def test_signif_for_complex_object_3_digits(complex_object):
+def test_signif_object_for_complex_object_3_digits(complex_object):
     rounded_complex_object = r.signif_object(complex_object, 3, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.2
@@ -197,7 +198,7 @@ def test_signif_for_complex_object_3_digits(complex_object):
     assert rounded_complex_object["d"] == [1.12, 0.0235]
 
 
-def test_signif_for_complex_object_5_digits(complex_object):
+def test_signif_object_for_complex_object_5_digits(complex_object):
     rounded_complex_object = r.signif_object(complex_object, 4, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.22
@@ -209,16 +210,48 @@ def test_signif_for_complex_object_5_digits(complex_object):
     assert rounded_complex_object["d"] == [1.123, 0.02349]
 
 
-def test_complex_numbers():
+def test_for_complex_numbers():
     assert r.round_object(1.934643-2j, 2) == 1.93-2j
     assert r.ceil_object(1.934643-2j) == 2-2j
     assert r.floor_object(1.934643-2j) == 1-2j
     assert r.signif_object(1.934643-2j, 5) == 1.9346-2j
 
 
-def test_signif_alias(n, limits, digits_range):
-    for _ in range(n):
-        x = random.uniform(*limits)
-        for digits in digits_range:
-            assert r.signif(x, digits) == r.signif_object(x, digits)
+def test_signif_floats():
+    assert r.signif(1.444555) == 1.44
+        
+    assert r.signif(1.444555, 1) == 1.0
+    assert r.signif(1.444555, 2) == 1.4
+    assert r.signif(1.444555, 3) == 1.44
+    assert r.signif(1.444555, 4) == 1.445
+    assert r.signif(1.444555, 5) == 1.4446
+    assert r.signif(1.444555, 6) == 1.44456
+    assert r.signif(1.444555, 7) == 1.444555
+    assert r.signif(1.444555, 8) == 1.444555
+    
 
+def test_signif_ints():
+    assert r.signif(1444555) == 1440000
+    
+    assert r.signif(1444555, 1) == 1000000
+    assert r.signif(1444555, 2) == 1400000
+    assert r.signif(1444555, 3) == 1440000
+    assert r.signif(1444555, 4) == 1445000
+    assert r.signif(1444555, 5) == 1444600
+    assert r.signif(1444555, 6) == 1444560
+    assert r.signif(1444555, 7) == 1444555
+    assert r.signif(1444555, 8) == 1444555
+    
+    
+def test_signif_exception():
+    with pytest.raises(TypeError, match="must be an int or a float"):
+        r.signif("string")
+    
+    with pytest.raises(TypeError, match="must be an int or a float"):
+        r.signif([2.12])
+
+    with pytest.raises(TypeError, match="must be an int or a float"):
+        r.signif((1, ))
+    
+        
+    
