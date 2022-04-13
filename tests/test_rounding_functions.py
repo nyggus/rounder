@@ -261,19 +261,26 @@ def test_signif_ints():
 
 
 def test_signif_exception():
-    with pytest.raises(r.NonNumericTypeError, match="must be an int or a float"):
+    with pytest.raises(
+        r.NonNumericTypeError, match="must be an int or a float"
+    ):
         r.signif("string")
 
-    with pytest.raises(r.NonNumericTypeError, match="must be an int or a float"):
+    with pytest.raises(
+        r.NonNumericTypeError, match="must be an int or a float"
+    ):
         r.signif([2.12])
 
-    with pytest.raises(r.NonNumericTypeError, match="must be an int or a float"):
+    with pytest.raises(
+        r.NonNumericTypeError, match="must be an int or a float"
+    ):
         r.signif((1,))
 
 
 def test_with_unpickable_objects():
     gen = (i**2 for i in range(10))
-    with pytest.raises(r.UnpickableObjectError,
-                       match="cannot pickle 'generator' object"):
+    with pytest.raises(
+        r.UnpickableObjectError, match="cannot pickle 'generator' object"
+    ):
         _ = r.round_object(gen, use_copy=True)
     _ = r.round_object(gen, use_copy=False)

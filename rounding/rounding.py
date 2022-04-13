@@ -10,7 +10,7 @@ orig_round = round
 
 
 class RoundingError(Exception):
-    """Exception class to be used across the package."""
+    """Base exception class for the package."""
 
     pass
 
