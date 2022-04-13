@@ -252,4 +252,4 @@ The package is covered with unit `pytest`s, located in the tests/ folder. In add
 
 ## OS
 
-The package is OS-independent. Its releases are checked in a local machien Windows 10 and Ubuntu 20.04 for Windows, and on a Red Hat Linux server.
+The package is OS-independent. Its releases are checked in a local machine, on Windows 10 and Ubuntu 20.04 for Windows, and on a Red Hat Linux server.
