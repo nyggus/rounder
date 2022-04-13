@@ -76,7 +76,6 @@ class Rounder:
             if self.x.typecode == "f":
                 list_x = list(self.x)
                 for i, v in enumerate(self.x):
-                    # breakpoint()
                     list_x[i] = Rounder(v, self.digits, self.method)()
                 self.x = array.array("f", list_x)
         elif isinstance(self.x, tuple):
