@@ -2,12 +2,29 @@
 
 `rounding` is a lightweight module for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines them. The package is useful mainly for presentation purposes, but in some cases, it can be useful in other situations as well.
 
-`rounding` offers you four rounding functions:
+`rounding` offers you four functions for rounding complex objects:
 
 * `round_object(x, digits=0, use_copy=False)`, which rounds to `digits` decimal places
 * `floor_object(x, use_copy=False)`, which rounds to the nearest higher integer
 * `ceil_object(x, use_copy=False)`, which rounds to the nearest lower integer
-* `signif_object(x, digits, use_copy=False)`, which rounds to `digits` significant digits.
+* `signif_object(x, digits, use_copy=False)`, which rounds to `digits` significant digits
+
+but it offers also a function for rounding numbers:
+
+* `signif(x, digits)`, which rounds `x` (either an int or a float) to `digits` significant digits
+
+You can use `signif` in a simple way:
+
+```python
+>>> import rounding as r
+>>> r.signif(1.1212, 3)
+1.12
+>>> r.signif(12.1239112, 5)
+12.124
+>>> r.signif(121212.12, 3)
+121000.0
+
+```
 
 The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original mutable structure. To overcome this effect, simply use `use_copy=True` in the above functions, which will first create a copy of the object and work (and return) its deepcopy, not the original object.
 
@@ -16,7 +33,6 @@ While you can use `rounding` functions for rounding floats, this does not make m
 You can round a list, a tuple, a set (including a frozenset), a float `array.array`, and a dict:
 
 ```python
->>> import rounding as r
 >>> r.round_object([1.122, 2.4434], 1)
 [1.1, 2.4]
 >>> r.ceil_object([1.122, 2.4434])
