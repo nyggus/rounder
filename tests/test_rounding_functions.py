@@ -1,0 +1,216 @@
+import rounding as r
+import random
+from copy import deepcopy
+from math import ceil, floor
+
+
+def test_randomized_tests_round_ceil_floor(n, limits, digits_range):
+    for _ in range(n):
+        x = random.uniform(*limits)
+        for digits in digits_range:
+            assert round(x, digits) == r.round(x, digits)
+            assert ceil(x) == r.ceil(x)
+            assert floor(x) == r.floor(x)
+
+
+def test_use_copy_with_lists_and_dicts():
+    items = (
+        [222.222, 333.333, 1.000045, "Shout Bamalama!"],
+        {"a": 222.222, "b": 333.333, "c": 1.000045, "d": "Shout Bamalama!"}
+    )
+    
+    for x in items:
+        x_rounder_copy = r.round(x, 1, True)
+        assert x_rounder_copy != x
+        x_rounder_no_copy = r.round(x, 1, False)
+        assert x_rounder_no_copy == x_rounder_copy
+        assert x_rounder_no_copy is not x_rounder_copy
+        assert x_rounder_no_copy is x
+    
+
+def test_no_copy_with_lists_and_dicts():
+    items = (
+        [222.222, 333.333, 1.000045, "Shout Bamalama!"],
+        {"a": 222.222, "b": 333.333, "c": 1.000045, "d": "Shout Bamalama!"}
+    )
+    
+    for x in items:
+        x_rounder = r.round(x, 1)
+        assert x_rounder is x
+
+
+def test_copy_with_tuples_and_sets():
+    items = (
+        (222.222, 333.333, 1.000045, "Shout Bamalama!"),
+        {222.222, 333.333, 1.000045, "Shout Bamalama!"}
+    )
+    
+    for x in items:
+        x_rounder = r.round(x, 1, True)
+        assert x_rounder is not x
+        assert x_rounder != x
+
+
+def test_no_copy_with_tuples_and_sets():
+    items = (
+        (222.222, 333.333, 1.000045, "Shout Bamalama!"),
+        {222.222, 333.333, 1.000045, "Shout Bamalama!"}
+    )
+    
+    for x in items:
+        x_rounder = r.round(x, 1, False)
+        assert x_rounder is not x
+        assert x_rounder != x
+
+
+def test_randomized_tests_using_copy_lists_tuples_sets(
+    n, list_len, limits, digits_range):
+    for _ in range(n):
+        for length in list_len:
+            for digits in digits_range:
+                for iter_type in (list, tuple, set):
+                    x = iter_type(random.uniform(*limits) for i in range(length))
+                    x_copy = deepcopy(x)
+                    
+                    r_rounded_x = r.round(x, digits, use_copy=True)
+                    assert r_rounded_x != x
+                    
+                    rounded_x = iter_type(round(x, digits) for x in x_copy)
+                    assert r_rounded_x is not x
+                    assert rounded_x == r_rounded_x
+                    
+                    # use_copy was used, so the original list did not change:
+                    # (here, this makes a difference for lists but not for
+                    # sets and tuples)
+                    if iter_type is list:
+                        assert r_rounded_x != x
+                        no_copy_r_rounded_x = r.round(x, digits, use_copy=False)
+                        assert no_copy_r_rounded_x == r_rounded_x
+                        
+                        # use_copy was NOT used, so the original list DID change:
+                        assert r_rounded_x == x
+                    
+
+def test_randomized_tests_using_copy_dicts(n, limits, digits_range):
+    for _ in range(n):
+        for digits in digits_range:
+            for iter_type in (list, tuple, set):
+                x = {letter: random.uniform(*limits) for letter in "abcefghijk"}
+                x_copy = deepcopy(x)
+                
+                r_rounded_x = r.round(x, digits, use_copy=True)
+                assert r_rounded_x != x
+                
+                rounded_x = {letter: round(x, digits) for letter, x in x_copy.items()}
+                assert r_rounded_x is not x
+                assert rounded_x == r_rounded_x
+                
+                # use_copy was used, so the original list did not change:
+                assert r_rounded_x != x
+                no_copy_r_rounded_x = r.round(x, digits, use_copy=False)
+                assert no_copy_r_rounded_x == r_rounded_x
+                
+                # use_copy was NOT used, so the original list DID change:
+                assert r_rounded_x == x
+
+
+def test_with_non_roundable_items():
+    assert r.round("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.ceil("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.floor("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.signif("Shout Bamalama!", 5) == "Shout Bamalama!"
+
+
+def test_with_non_roundable_items_lists():
+    assert r.round(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.ceil(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.floor(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.signif(["Shout Bamalama!"], 5) == ["Shout Bamalama!"]
+
+
+def test_with_non_roundable_items_tuples():
+    assert r.round(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.ceil(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.floor(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.signif(("Shout Bamalama!"), 5) == ("Shout Bamalama!")
+
+
+def test_with_non_roundable_items_sets():
+    assert r.round({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.ceil({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.floor({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.signif({"Shout Bamalama!"}, 5) == {"Shout Bamalama!"}
+
+
+def test_with_non_roundable_items_dicts():
+    assert r.round({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.ceil({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.floor({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.signif({"phrase": "Shout Bamalama!"}, 5) == {"phrase": "Shout Bamalama!"}
+
+
+def test_round_for_complex_object(complex_object):
+    rounded_complex_object = r.round(complex_object, 3, use_copy=True)
+    assert rounded_complex_object is not complex_object
+    assert rounded_complex_object["a"] == 12.222
+    assert rounded_complex_object["e"] == {
+        'ea': 0.023,
+        'eb': {1.333, 2.999},
+        'ec': {'eca': 1.566, 'ecb': 1.766}
+    }
+    assert rounded_complex_object["d"] == [1.123, 0.023]
+
+
+def test_ceil_for_complex_object(complex_object):
+    rounded_complex_object = r.ceil(complex_object, use_copy=True)
+    assert rounded_complex_object is not complex_object
+    assert rounded_complex_object["a"] == 13
+    assert rounded_complex_object["e"] == {
+        'ea': 1,
+        'eb': {2, 3},
+        'ec': {'eca': 2, 'ecb': 2}
+    }
+    assert rounded_complex_object["d"] == [2, 1]
+
+
+def test_floor_for_complex_object(complex_object):
+    rounded_complex_object = r.floor(complex_object, use_copy=True)
+    assert rounded_complex_object is not complex_object
+    assert rounded_complex_object["a"] == 12
+    assert rounded_complex_object["e"] == {
+        'ea': 0,
+        'eb': {1, 2},
+        'ec': {'eca': 1, 'ecb': 1}
+    }
+    assert rounded_complex_object["d"] == [1, 0]
+
+
+def test_signif_for_complex_object_3_digits(complex_object):
+    rounded_complex_object = r.signif(complex_object, 3, use_copy=True)
+    assert rounded_complex_object is not complex_object
+    assert rounded_complex_object["a"] == 12.2
+    assert rounded_complex_object["e"] == {
+        'ea': 0.0227,
+        'eb': {1.33, 3.0},
+        'ec': {'eca': 1.57, 'ecb': 1.77}
+    }
+    assert rounded_complex_object["d"] == [1.12, 0.0235]
+
+
+def test_signif_for_complex_object_5_digits(complex_object):
+    rounded_complex_object = r.signif(complex_object, 4, use_copy=True)
+    assert rounded_complex_object is not complex_object
+    assert rounded_complex_object["a"] == 12.22
+    assert rounded_complex_object["e"] == {
+        'ea': 0.02273,
+        'eb': {1.333, 2.999},
+        'ec': {'eca': 1.566, 'ecb': 1.766}
+    }
+    assert rounded_complex_object["d"] == [1.123, 0.02349]
+
+
+def test_complex_numbers():
+    assert r.round(1.934643-2j, 2) == 1.93-2j
+    assert r.ceil(1.934643-2j) == 2-2j
+    assert r.floor(1.934643-2j) == 1-2j
+    assert r.signif(1.934643-2j, 5) == 1.9346-2j
