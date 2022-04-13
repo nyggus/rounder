@@ -4,4 +4,9 @@ from .rounding import (
     ceil_object,
     signif_object,
     signif,
+    RoundingError,
+    UnpickableObjectError,
+    NonNumericTypeError,
+    NegativeDigitsError,
+    IncorrectMethodError,
 )
