@@ -269,3 +269,10 @@ def test_signif_exception():
 
     with pytest.raises(TypeError, match="must be an int or a float"):
         r.signif((1,))
+
+
+def test_with_unpickable_objects():
+    gen = (i**2 for i in range(10))
+    with pytest.raises(TypeError, match="cannot pickle 'generator' object"):
+        _ = r.round_object(gen, use_copy=True)
+    _ = r.round_object(gen, use_copy=False)

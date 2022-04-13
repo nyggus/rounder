@@ -16,9 +16,9 @@ class RoundingError(Exception):
 
 
 class Rounder:
-    """Class for rounding complex objects in Python.
+    """Callable class for rounding complex objects in Python.
     
-    The class is private inside the package, and is not to be used by
+    The class is not experted with the package, and is not to be used by
     the user. Instead, four functions that run the class should be used:
     round_object(), floor_object(), ceil_object() and signif_object().
     """
@@ -115,7 +115,8 @@ def round_object(x, digits=0, use_copy=False):
         digits (int, optional): number of digits. Defaults to 0.
         use_copy (bool, optional): use a deep copy or work with the original
             object? Defaults to False, in which case mutable objects (a list
-            or a dict, for instance) will be affect inplace.
+            or a dict, for instance) will be affected inplace. In the case of
+            unpickable objects, TypeError will be raised.
 
     Returns:
         any: the object with values rounded to requested number of digits

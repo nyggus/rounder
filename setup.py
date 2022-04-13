@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 extras_requirements = {
-    "dev": ["wheel", "black"],
+    "dev": ["wheel", "black", ],
 }
 
 setuptools.setup(
