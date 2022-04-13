@@ -1,13 +1,15 @@
-# `rounding`: Rounding floats in complex structures
+# `rounding`: Rounding of numbers in complex Python objects
 
-`rounding` is a lightweight module for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any structure that combines them. It offers you four rounding functions:
+`rounding` is a lightweight module for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines them. The package is useful mainly for presentation purposes, but in some cases, it can be useful in other situations as well.
 
-* `round(x, digits=0, use_copy=False)`, which rounds to `digits` decimal places
-* `floor(x, use_copy=False)`, which rounds to the nearest highest integer
-* `ceil(x, use_copy=False)`, which rounds to the nearest lowest integer
-* `signif(x, digits, use_copy=False)`, which rounds to `digits` significant digits.
+`rounding` offers you four rounding functions:
 
-The package is extremely simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original mutable structure. To overcome this effect, simply use `use_copy=True`, which will first create a copy of the object and round the copy, not the original object.
+* `round_object(x, digits=0, use_copy=False)`, which rounds to `digits` decimal places
+* `floor_object(x, use_copy=False)`, which rounds to the nearest higher integer
+* `ceil_object(x, use_copy=False)`, which rounds to the nearest lower integer
+* `signif_object(x, digits, use_copy=False)`, which rounds to `digits` significant digits.
+
+The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original mutable structure. To overcome this effect, simply use `use_copy=True` in the above functions, which will first create a copy of the object and work (and return) its deepcopy, not the original object.
 
 While you can use `rounding` functions for rounding floats, this does not make much sense, as they will be rather slolwer than other solutions. The package does not aim to help you round single values, but to help you out with rounding complex structures, which you would have to round element by element. 
 
@@ -15,20 +17,20 @@ You can round a list, a tuple, a set (including a frozenset), a float `array.arr
 
 ```python
 >>> import rounding as r
->>> r.round([1.122, 2.4434], 1)
+>>> r.round_object([1.122, 2.4434], 1)
 [1.1, 2.4]
->>> r.ceil([1.122, 2.4434])
+>>> r.ceil_object([1.122, 2.4434])
 [2, 3]
->>> r.floor([1.122, 2.4434])
+>>> r.floor_object([1.122, 2.4434])
 [1, 2]
->>> r.signif([1.1224, 222.4434], 4)
+>>> r.signif_object([1.1224, 222.4434], 4)
 [1.122, 222.4]
 
->>> r.round((1.122, 2.4434), 1)
+>>> r.round_object((1.122, 2.4434), 1)
 (1.1, 2.4)
->>> r.round({1.122, 2.4434}, 1)
+>>> r.round_object({1.122, 2.4434}, 1)
 {1.1, 2.4}
->>> r.round({"1": 1.122, "q":2.4434}, 1)
+>>> r.round_object({"1": 1.122, "q":2.4434}, 1)
 {'1': 1.1, 'q': 2.4}
 
 ```
@@ -38,7 +40,7 @@ Do remember, however, that `array.array` works in its own way, so rounding its v
 ```python
 >>> import array
 >>> arr = array.array("f", (1.122, 2.4434))
->>> r.round(arr, 1) == array.array("f", (1.1, 2.4))
+>>> r.round_object(arr, 1) == array.array("f", (1.1, 2.4))
 True
 
 ```
@@ -55,7 +57,7 @@ and indeed:
 
 
 ```python
->>> r.round(arr, 1)
+>>> r.round_object(arr, 1)
 array('f', [1.100000023841858, 2.4000000953674316])
 
 ```
@@ -63,7 +65,7 @@ array('f', [1.100000023841858, 2.4000000953674316])
 This is seldom what you want to achieve, so more often than not, before rounding an array, you should make it a list or a tuple:
 
 ```python
->>> r.round(list(arr), 1)
+>>> r.round_object(list(arr), 1)
 [1.1, 2.4]
 
 ```
@@ -71,7 +73,7 @@ This is seldom what you want to achieve, so more often than not, before rounding
 Note that you do not have to worry about having non-roundable objects in a list (or whatever object you're feeding into `rounding` functions). Your objects can contain objects of any type, and only floats and complex numbers will be rounded while all others will be returned untouched:
 
 ```python
->>> r.round([1.122, "string", 2.4434, 2.45454545-2j], 1)
+>>> r.round_object([1.122, "string", 2.4434, 2.45454545-2j], 1)
 [1.1, 'string', 2.4, (2.5-2j)]
 
 ```
@@ -79,11 +81,11 @@ Note that you do not have to worry about having non-roundable objects in a list 
 In fact, you can round any object, and the function will simply return it if it's non-roundable:
 
 ```python
->>> r.round("string")
+>>> r.round_object("string")
 'string'
->>> r.round(lambda x: x**3)(2)
+>>> r.round_object(lambda x: x**3)(2)
 8
->>> r.round(range(10))
+>>> r.round_object(range(10))
 range(0, 10)
 
 ```
@@ -110,7 +112,7 @@ But most of all, you can apply rounding for any complex object, of any structure
 Perhaps it does not make much sense, but the point is that to round all the values in this structure, you would need to build a dedicated script for that. With `rounding`, this is a piece of cake:
 
 ```python
->>> rounded_x = r.round(x, digits=2, use_copy=True)
+>>> rounded_x = r.round_object(x, digits=2, use_copy=True)
 
 ```
 
@@ -142,9 +144,9 @@ First of all, all these functions will work the very same way as their original 
 >>> import math
 >>> x = 12345.12345678901234567890
 >>> for d in range(10):
-...     assert round(x, d) == r.round(x, d)
-...     assert math.ceil(x) == r.ceil(x)
-...     assert math.floor(x) == r.floor(x)
+...     assert round(x, d) == r.round_object(x, d)
+...     assert math.ceil(x) == r.ceil_object(x)
+...     assert math.floor(x) == r.floor_object(x)
 
 ```
 
@@ -158,13 +160,13 @@ Yes, it does. Look:
 
 ```python
 >>> x = {1.12, 4.555}
->>> r.round(x)
+>>> r.round_object(x)
 {1.0, 5.0}
->>> r.round(frozenset(x))
+>>> r.round_object(frozenset(x))
 frozenset({1.0, 5.0})
->>> r.round((1.12, 4.555))
+>>> r.round_object((1.12, 4.555))
 (1.0, 5.0)
->>> r.round(({1.1, 1.2}, frozenset({1.444, 2.222})))
+>>> r.round_object(({1.1, 1.2}, frozenset({1.444, 2.222})))
 ({1.0}, frozenset({1.0, 2.0}))
 
 ```
@@ -177,7 +179,7 @@ As a rule, mainly for safety, generators are returned unchanged. This is a safe 
 
 ```python
 >>> gen = (i**2 for i in (.1, .33, .45))
->>> r.round(gen) is gen
+>>> r.round_object(gen) is gen
 True
 
 ```
@@ -186,7 +188,7 @@ You will get the same result for `range`:
 
 ```python
 >>> ran = range(10)
->>> r.round(ran) is ran
+>>> r.round_object(ran) is ran
 True
 
 ```

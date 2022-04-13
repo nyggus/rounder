@@ -4,13 +4,13 @@ from copy import deepcopy
 from math import ceil, floor
 
 
-def test_randomized_tests_round_ceil_floor(n, limits, digits_range):
+def test_randomized_tests_round_ceil_floor_object(n, limits, digits_range):
     for _ in range(n):
         x = random.uniform(*limits)
         for digits in digits_range:
-            assert round(x, digits) == r.round(x, digits)
-            assert ceil(x) == r.ceil(x)
-            assert floor(x) == r.floor(x)
+            assert round(x, digits) == r.round_object(x, digits)
+            assert ceil(x) == r.ceil_object(x)
+            assert floor(x) == r.floor_object(x)
 
 
 def test_use_copy_with_lists_and_dicts():
@@ -20,9 +20,9 @@ def test_use_copy_with_lists_and_dicts():
     )
     
     for x in items:
-        x_rounder_copy = r.round(x, 1, True)
+        x_rounder_copy = r.round_object(x, 1, True)
         assert x_rounder_copy != x
-        x_rounder_no_copy = r.round(x, 1, False)
+        x_rounder_no_copy = r.round_object(x, 1, False)
         assert x_rounder_no_copy == x_rounder_copy
         assert x_rounder_no_copy is not x_rounder_copy
         assert x_rounder_no_copy is x
@@ -35,7 +35,7 @@ def test_no_copy_with_lists_and_dicts():
     )
     
     for x in items:
-        x_rounder = r.round(x, 1)
+        x_rounder = r.round_object(x, 1)
         assert x_rounder is x
 
 
@@ -46,7 +46,7 @@ def test_copy_with_tuples_and_sets():
     )
     
     for x in items:
-        x_rounder = r.round(x, 1, True)
+        x_rounder = r.round_object(x, 1, True)
         assert x_rounder is not x
         assert x_rounder != x
 
@@ -58,7 +58,7 @@ def test_no_copy_with_tuples_and_sets():
     )
     
     for x in items:
-        x_rounder = r.round(x, 1, False)
+        x_rounder = r.round_object(x, 1, False)
         assert x_rounder is not x
         assert x_rounder != x
 
@@ -72,7 +72,7 @@ def test_randomized_tests_using_copy_lists_tuples_sets(
                     x = iter_type(random.uniform(*limits) for i in range(length))
                     x_copy = deepcopy(x)
                     
-                    r_rounded_x = r.round(x, digits, use_copy=True)
+                    r_rounded_x = r.round_object(x, digits, use_copy=True)
                     assert r_rounded_x != x
                     
                     rounded_x = iter_type(round(x, digits) for x in x_copy)
@@ -84,7 +84,7 @@ def test_randomized_tests_using_copy_lists_tuples_sets(
                     # sets and tuples)
                     if iter_type is list:
                         assert r_rounded_x != x
-                        no_copy_r_rounded_x = r.round(x, digits, use_copy=False)
+                        no_copy_r_rounded_x = r.round_object(x, digits, use_copy=False)
                         assert no_copy_r_rounded_x == r_rounded_x
                         
                         # use_copy was NOT used, so the original list DID change:
@@ -98,7 +98,7 @@ def test_randomized_tests_using_copy_dicts(n, limits, digits_range):
                 x = {letter: random.uniform(*limits) for letter in "abcefghijk"}
                 x_copy = deepcopy(x)
                 
-                r_rounded_x = r.round(x, digits, use_copy=True)
+                r_rounded_x = r.round_object(x, digits, use_copy=True)
                 assert r_rounded_x != x
                 
                 rounded_x = {letter: round(x, digits) for letter, x in x_copy.items()}
@@ -107,7 +107,7 @@ def test_randomized_tests_using_copy_dicts(n, limits, digits_range):
                 
                 # use_copy was used, so the original list did not change:
                 assert r_rounded_x != x
-                no_copy_r_rounded_x = r.round(x, digits, use_copy=False)
+                no_copy_r_rounded_x = r.round_object(x, digits, use_copy=False)
                 assert no_copy_r_rounded_x == r_rounded_x
                 
                 # use_copy was NOT used, so the original list DID change:
@@ -115,42 +115,42 @@ def test_randomized_tests_using_copy_dicts(n, limits, digits_range):
 
 
 def test_with_non_roundable_items():
-    assert r.round("Shout Bamalama!") == "Shout Bamalama!"
-    assert r.ceil("Shout Bamalama!") == "Shout Bamalama!"
-    assert r.floor("Shout Bamalama!") == "Shout Bamalama!"
-    assert r.signif("Shout Bamalama!", 5) == "Shout Bamalama!"
+    assert r.round_object("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.ceil_object("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.floor_object("Shout Bamalama!") == "Shout Bamalama!"
+    assert r.signif_object("Shout Bamalama!", 5) == "Shout Bamalama!"
 
 
 def test_with_non_roundable_items_lists():
-    assert r.round(["Shout Bamalama!"]) == ["Shout Bamalama!"]
-    assert r.ceil(["Shout Bamalama!"]) == ["Shout Bamalama!"]
-    assert r.floor(["Shout Bamalama!"]) == ["Shout Bamalama!"]
-    assert r.signif(["Shout Bamalama!"], 5) == ["Shout Bamalama!"]
+    assert r.round_object(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.ceil_object(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.floor_object(["Shout Bamalama!"]) == ["Shout Bamalama!"]
+    assert r.signif_object(["Shout Bamalama!"], 5) == ["Shout Bamalama!"]
 
 
 def test_with_non_roundable_items_tuples():
-    assert r.round(("Shout Bamalama!")) == ("Shout Bamalama!")
-    assert r.ceil(("Shout Bamalama!")) == ("Shout Bamalama!")
-    assert r.floor(("Shout Bamalama!")) == ("Shout Bamalama!")
-    assert r.signif(("Shout Bamalama!"), 5) == ("Shout Bamalama!")
+    assert r.round_object(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.ceil_object(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.floor_object(("Shout Bamalama!")) == ("Shout Bamalama!")
+    assert r.signif_object(("Shout Bamalama!"), 5) == ("Shout Bamalama!")
 
 
 def test_with_non_roundable_items_sets():
-    assert r.round({"Shout Bamalama!"}) == {"Shout Bamalama!"}
-    assert r.ceil({"Shout Bamalama!"}) == {"Shout Bamalama!"}
-    assert r.floor({"Shout Bamalama!"}) == {"Shout Bamalama!"}
-    assert r.signif({"Shout Bamalama!"}, 5) == {"Shout Bamalama!"}
+    assert r.round_object({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.ceil_object({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.floor_object({"Shout Bamalama!"}) == {"Shout Bamalama!"}
+    assert r.signif_object({"Shout Bamalama!"}, 5) == {"Shout Bamalama!"}
 
 
 def test_with_non_roundable_items_dicts():
-    assert r.round({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
-    assert r.ceil({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
-    assert r.floor({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
-    assert r.signif({"phrase": "Shout Bamalama!"}, 5) == {"phrase": "Shout Bamalama!"}
+    assert r.round_object({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.ceil_object({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.floor_object({"phrase": "Shout Bamalama!"}) == {"phrase": "Shout Bamalama!"}
+    assert r.signif_object({"phrase": "Shout Bamalama!"}, 5) == {"phrase": "Shout Bamalama!"}
 
 
 def test_round_for_complex_object(complex_object):
-    rounded_complex_object = r.round(complex_object, 3, use_copy=True)
+    rounded_complex_object = r.round_object(complex_object, 3, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.222
     assert rounded_complex_object["e"] == {
@@ -162,7 +162,7 @@ def test_round_for_complex_object(complex_object):
 
 
 def test_ceil_for_complex_object(complex_object):
-    rounded_complex_object = r.ceil(complex_object, use_copy=True)
+    rounded_complex_object = r.ceil_object(complex_object, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 13
     assert rounded_complex_object["e"] == {
@@ -174,7 +174,7 @@ def test_ceil_for_complex_object(complex_object):
 
 
 def test_floor_for_complex_object(complex_object):
-    rounded_complex_object = r.floor(complex_object, use_copy=True)
+    rounded_complex_object = r.floor_object(complex_object, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12
     assert rounded_complex_object["e"] == {
@@ -186,7 +186,7 @@ def test_floor_for_complex_object(complex_object):
 
 
 def test_signif_for_complex_object_3_digits(complex_object):
-    rounded_complex_object = r.signif(complex_object, 3, use_copy=True)
+    rounded_complex_object = r.signif_object(complex_object, 3, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.2
     assert rounded_complex_object["e"] == {
@@ -198,7 +198,7 @@ def test_signif_for_complex_object_3_digits(complex_object):
 
 
 def test_signif_for_complex_object_5_digits(complex_object):
-    rounded_complex_object = r.signif(complex_object, 4, use_copy=True)
+    rounded_complex_object = r.signif_object(complex_object, 4, use_copy=True)
     assert rounded_complex_object is not complex_object
     assert rounded_complex_object["a"] == 12.22
     assert rounded_complex_object["e"] == {
@@ -210,7 +210,15 @@ def test_signif_for_complex_object_5_digits(complex_object):
 
 
 def test_complex_numbers():
-    assert r.round(1.934643-2j, 2) == 1.93-2j
-    assert r.ceil(1.934643-2j) == 2-2j
-    assert r.floor(1.934643-2j) == 1-2j
-    assert r.signif(1.934643-2j, 5) == 1.9346-2j
+    assert r.round_object(1.934643-2j, 2) == 1.93-2j
+    assert r.ceil_object(1.934643-2j) == 2-2j
+    assert r.floor_object(1.934643-2j) == 1-2j
+    assert r.signif_object(1.934643-2j, 5) == 1.9346-2j
+
+
+def test_signif_alias(n, limits, digits_range):
+    for _ in range(n):
+        x = random.uniform(*limits)
+        for digits in digits_range:
+            assert r.signif(x, digits) == r.signif_object(x, digits)
+
