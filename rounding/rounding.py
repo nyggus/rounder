@@ -41,7 +41,7 @@ class Rounder:
         elif self.method == "ceil":
             return orig_ceil(self.x)
         elif self.method == "signif":
-            return self.signif(self.x)
+            return self.signif_object(self.x)
     
     
     def run_method_for_complex_number(self):
@@ -62,11 +62,11 @@ class Rounder:
             )
         elif self.method == "signif":
             return (
-                self.signif(self.x.real)
+                self.signif_object(self.x.real)
                 + orig_round(self.x.imag) * 1j
             )
         
-    def signif(self, x):
+    def signif_object(self, x):
         """
         Translated from Java algorithm available on
         <a href="http://stackoverflow.com/questions/202302">Stack Overflow</a>"""
@@ -117,26 +117,28 @@ class Rounder:
         return self.x
 
 
-def round(x, digits=0, use_copy=False):
+def round_object(x, digits=0, use_copy=False):
     y = deepcopy(x) if use_copy else x
     return Rounder(y, digits, method="round")()
 
 
-def signif(x, digits, use_copy=False):
-    y = deepcopy(x) if use_copy else x
-    return Rounder(y, digits, method="signif")()
 
-
-def floor(x, use_copy=False):
+def floor_object(x, use_copy=False):
     y = deepcopy(x) if use_copy else x
     return Rounder(y, 0, method="floor")()
 
 
-def ceil(x, use_copy=False):
+def ceil_object(x, use_copy=False):
     y = deepcopy(x) if use_copy else x
     return Rounder(y, 0, method="ceil")()
 
 
+def signif_object(x, digits, use_copy=False):
+    y = deepcopy(x) if use_copy else x
+    return Rounder(y, digits, method="signif")()
+
+
+signif = signif_object
 
 if __name__ == "__main__":
     import doctest
