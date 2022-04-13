@@ -1,15 +1,15 @@
 # `rounding`: Rounding of numbers in complex Python objects
 
-`rounding` is a lightweight module for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines them. The package is useful mainly for presentation purposes, but in some cases, it can be useful in other situations as well.
+`rounding` is a lightweight module for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines any number of such objects in any nested structure. The package is useful mainly for presentation purposes, but in some cases, it can be useful in other situations as well.
 
 `rounding` offers you four functions for rounding complex objects:
 
-* `round_object(x, digits=0, use_copy=False)`, which rounds to `digits` decimal places
-* `floor_object(x, use_copy=False)`, which rounds to the nearest higher integer
-* `ceil_object(x, use_copy=False)`, which rounds to the nearest lower integer
-* `signif_object(x, digits, use_copy=False)`, which rounds to `digits` significant digits
+* `round_object(x, digits=0, use_copy=False)`, which rounds `x` to `digits` decimal places
+* `floor_object(x, use_copy=False)`, which rounds `x` down to the nearest integer
+* `ceil_object(x, use_copy=False)`, which rounds `x` up to the nearest integer
+* `signif_object(x, digits, use_copy=False)`, which rounds `x` to `digits` significant digits
 
-but it offers also a function for rounding numbers:
+but it also offers a function for rounding numbers to significant digits:
 
 * `signif(x, digits)`, which rounds `x` (either an int or a float) to `digits` significant digits
 
@@ -26,9 +26,9 @@ You can use `signif` in a simple way:
 
 ```
 
-The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original mutable structure. To overcome this effect, simply use `use_copy=True` in the above functions, which will first create a copy of the object and work (and return) its deepcopy, not the original object.
+The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original object; no such effect, of course, will occur for immutable types (e.g., tuples and sets). To overcome this effect, simply use `use_copy=True` in the above functions for rounding objects (not in `signif`). If you do so, the function will create a copy of the object and work (and return) its deepcopy, not the original object.
 
-While you can use `rounding` functions for rounding floats, this does not make much sense, as they will be rather slolwer than other solutions. The package does not aim to help you round single values, but to help you out with rounding complex structures, which you would have to round element by element. 
+While you can use `rounding` functions for rounding floats, this does not make much sense, as they will be rather slower than the builtin `round` and `math`'s `ceil` and `floor`. Likewise, to round a number to significant digits, you should use `signif` instead of `signif_object`, also for performance purposes.
 
 You can round a list, a tuple, a set (including a frozenset), a float `array.array`, and a dict:
 
@@ -78,7 +78,7 @@ array('f', [1.100000023841858, 2.4000000953674316])
 
 ```
 
-This is seldom what you want to achieve, so more often than not, before rounding an array, you should make it a list or a tuple:
+This is seldom what you want to achieve when rounding numbers, so more often than not, before rounding an array, you should make it a list or a tuple:
 
 ```python
 >>> r.round_object(list(arr), 1)
@@ -86,7 +86,7 @@ This is seldom what you want to achieve, so more often than not, before rounding
 
 ```
 
-Note that you do not have to worry about having non-roundable objects in a list (or whatever object you're feeding into `rounding` functions). Your objects can contain objects of any type, and only floats and complex numbers will be rounded while all others will be returned untouched:
+Note that you do not have to worry about having non-roundable objects in a list (or whatever object you're feeding into `rounding` functions). Your objects can contain objects of any type, and only numbers will be rounded while all others will be remain untouched:
 
 ```python
 >>> r.round_object([1.122, "string", 2.4434, 2.45454545-2j], 1)
@@ -94,7 +94,7 @@ Note that you do not have to worry about having non-roundable objects in a list 
 
 ```
 
-In fact, you can round any object, and the function will simply return it if it's non-roundable:
+In fact, you can round any object, and the function will simply return it if it cannot be rounded:
 
 ```python
 >>> r.round_object("string")
@@ -110,17 +110,17 @@ But most of all, you can apply rounding for any complex object, of any structure
 
 ```python
 >>> x = {
-...    "items": ["item 1", "item 2", "item 3",],
-...    "quantities": {"item 1": 235, "item 2" : 300, "item 3": 17,},
-...    "prices": {
-...        "item 1": {"$": 32.22534554, "EURO": 41.783234567},
-...        "item 2": {"$": 42.26625, "EURO": 51.333578},
-...        "item 3": {"$": 2.223043225, "EURO": 2.78098721346}
-...    },
-...    "income": {
-...        "2009": {"$": 3445342.324364, "EURO":   39080.332546},
-...        "2010": {"$": 6765675.56665554, "EURO": 78980.34564546},
-...    }
+...     "items": ["item 1", "item 2", "item 3",],
+...     "quantities": {"item 1": 235, "item 2" : 300, "item 3": 17,},
+...     "prices": {
+...         "item 1": {"$": 32.22534554, "EURO": 41.783234567},
+...         "item 2": {"$": 42.26625, "EURO": 51.333578},
+...         "item 3": {"$": 2.223043225, "EURO": 2.78098721346}
+...     },
+...     "income": {
+...         "2009": {"$": 3445342.324364, "EURO":   39080.332546},
+...         "2010": {"$": 6765675.56665554, "EURO": 78980.34564546},
+...     }
 ... }
 
 ```
@@ -149,7 +149,7 @@ And you will get this:
 
 Piece of cake! Note that we used `use_copy=True`, which means that `rounded_x` is a deepcopy of `x`, so the original dictionary has not been affected anyway.
 
-Of course, you can achieve it in the same way yourself, as the design of the code is not too complicated. All these functions use the same class, `Rounder`, which works recursively, that way looping over the whole object. At each step, it checks the type of an object it has stepped into. If it is a complex number or a float, it rounds it; if it is a non-roundable object, it returns it, and if it is a container, it iterates over it - and so on, until each elementary object is either rounded or not.
+Of course, you can achieve it in the same way yourself, as the design of the code is not too complicated. All these functions use the same class, `Rounder`, which works recursively, that way looping over the whole object. At each step, it checks the type of an object it has stepped into. If it is a complex number or a float, it rounds it. If it is an int and the requested method is rounding to significant digits, it rounds it, too. If it is a non-roundable object, it returns it, and if it is a container, it iterates over it - and so on, until each elementary object has been rounded or not.
 
 
 # Examples
@@ -166,13 +166,11 @@ First of all, all these functions will work the very same way as their original 
 
 ```
 
-But please remember that the in-built `round` and `math`'s `ceil` and `floor` will be quicker than their `rounding` counterparts.
+But please remember that the builtin `round` and `math`'s `ceil` and `floor` will be quicker than their `rounding` counterparts.
 
 ### Immutable types
 
-> `rounding` does work with immutable types!
-
-Yes, it does. Look:
+`rounding` does work with immutable types! It simply creates a new object, with rounded numbers:
 
 ```python
 >>> x = {1.12, 4.555}
@@ -187,16 +185,33 @@ frozenset({1.0, 5.0})
 
 ```
 
-Remember, however, that in the case of immutable types, `rounding` functions do not affect the original objects, but simply return new ones.
+Remember, however, that in the case of sets, you can get a shorter set then the original one:
 
-### Generators
+```python
+>>> x = {1.12, 1.99}
+>>> r.ceil_object(x)
+{2}
+
+```
+
+
+### Generators and other unpickable objects
+
+This should be an extremely rare situation to request to round an object that contains a generator, or any other unpickable object. But if you happen to be in such a situation, be aware of some limitations of `rounding` functions.
 
 As a rule, mainly for safety, generators are returned unchanged. This is a safe approach for the simple reason that you often choose to use a generator instead of, say, a list when the data you're processing can be too large for your machine's memory to handle. So:
 
 ```python
->>> gen = (i**2 for i in (.1, .33, .45))
->>> r.round_object(gen) is gen
+>>> gen = (i**2 for i in range(10))
+>>> rounded_gen = r.round_object(gen)
+>>> rounded_gen is gen
 True
+>>> next(gen)
+0
+>>> next(gen)
+1
+>>> next(rounded_gen)
+4
 
 ```
 
@@ -209,6 +224,32 @@ True
 
 ```
 
+But you have to remember that when you request a deepcopy (with `use_copy=True`), all elements to be rounded need to be pickable:
+
+```python
+>>> gen_2 = (i**2 for i in range(10))
+>>> gen_2_copied_rounded = r.round_object(gen_2, use_copy=True)
+Traceback (most recent call last):
+    ...
+TypeError: cannot pickle 'generator' object
+
+```
+
+`range()` is pickable, so you can request a deepcopy of it in `rounding` functions. 
+
+This is a rare situation, however, to include such objects in an object to be rounded. Remember about the above limitations, and you can either work with the original object (not its copy, so with default `use_copy=False`), or change it so that all its elements can be pickled.
+
+
 ### NumPy and Pandas
 
-`rounding` does not work with `numpy` and `pandas`: they have their own in-built methods for rounding, and using them will be much quicker.
+`rounding` does not work with `numpy` and `pandas`: they have their own builtin methods for rounding, and using them will be much quicker.
+
+
+## Testing
+
+The package is covered with unit `pytest`s, located in the tests/ folder. In addition, the package uses `doctest`s, which are collected here, in this README, and in the main module, rounding.py. These `doctest`s serve mainly documentation purposes, and since they can be run any time during development and before with each release, this helps to check whether all the examples work fine.
+
+
+## OS
+
+The package is OS-independent. Its releases are checked in a local machien Windows 10 and Ubuntu 20.04 for Windows, and on a Red Hat Linux server.

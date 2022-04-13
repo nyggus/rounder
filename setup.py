@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 extras_requirements = {
-    "dev": ["wheel", "black"],
+    "dev": ["wheel", "black", ],
 }
-    
+
 setuptools.setup(
     name="rounding",
     version="0.1.0",
@@ -22,7 +22,9 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["easycheck", ],
-    python_requires='>=3.6',
+    install_requires=[
+        "easycheck",
+    ],
+    python_requires=">=3.6",
     extras_require=extras_requirements,
 )
