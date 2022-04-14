@@ -272,3 +272,25 @@ def test_with_unpickable_objects():
     with pytest.raises(r.UnpickableObjectError):
         _ = r.round_object(gen, use_copy=True)
     _ = r.round_object(gen, use_copy=False)
+
+
+def test_with_callable():
+    f = lambda x: x
+    assert callable(r.round_object(f))
+    def f(): 
+        pass
+    x = {"items": [1.1222, 1.343434], "function": f}
+    assert callable(x["function"])
+    
+    x_rounded = r.round_object(x, 2, use_copy=True)
+    assert callable(x_rounded["function"])
+    
+    x_ceil = r.ceil_object(x, use_copy=True)
+    assert callable(x_ceil["function"])
+    
+    x_floor = r.floor_object(x, use_copy=True)
+    assert callable(x_floor["function"])
+    
+    x_signif = r.floor_object(x, 3, use_copy=True)
+    assert callable(x_signif["function"])
+    
