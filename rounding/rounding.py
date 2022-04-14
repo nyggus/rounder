@@ -15,6 +15,9 @@ class NonNumericTypeError(Exception):
 
 def _do(func, value, digits, use_copy):
     def convert(value):
+        if hasattr(value, "__dict__"):
+            convert(value.__dict__)
+            return value
         if isinstance(value, complex):
             # this has to be checked before the Number check,
             # as complex is a Number
@@ -27,9 +30,8 @@ def _do(func, value, digits, use_copy):
         if isinstance(value, (tuple, set, frozenset)):
             return type(value)(convert(list(value)))
         if isinstance(value, dict):
-            for k, v in value.items():
-                value[k] = convert(v)
-            return value
+            value.update(zip(value.keys(), convert(list(value.values()))))
+            return value  
         if isinstance(value, array.array):
             value[:] = array.array(value.typecode, convert(value.tolist()))
             return value
