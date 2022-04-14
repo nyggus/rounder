@@ -35,7 +35,7 @@ def _do(func, obj, digits, use_copy):
             return type(obj)(convert(list(obj)))
         if isinstance(obj, dict):
             obj.update(zip(obj.keys(), convert(list(obj.values()))))
-            return obj  
+            return obj
         if isinstance(obj, array.array):
             obj[:] = array.array(obj.typecode, convert(obj.tolist()))
             return obj

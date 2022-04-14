@@ -270,7 +270,7 @@ def test_signif_exception():
 
 
 def test_with_unpickable_objects():
-    gen = (i**2 for i in range(10))
+    gen = (i ** 2 for i in range(10))
     with pytest.raises(r.UnpickableObjectError):
         _ = r.round_object(gen, use_copy=True)
     _ = r.round_object(gen, use_copy=False)
