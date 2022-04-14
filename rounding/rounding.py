@@ -31,7 +31,7 @@ def _do(func, value, digits, use_copy):
             return type(value)(convert(list(value)))
         if isinstance(value, dict):
             value.update(zip(value.keys(), convert(list(value.values()))))
-            return value  
+            return value
         if isinstance(value, array.array):
             value[:] = array.array(value.typecode, convert(value.tolist()))
             return value
