@@ -150,8 +150,6 @@ And you will get this:
 
 Piece of cake! Note that we used `use_copy=True`, which means that `rounded_x` is a deepcopy of `x`, so the original dictionary has not been affected anyway.
 
-Of course, you can achieve it in the same way yourself, as the design of the code is not too complicated. All these functions use the same class, `Rounder`, which works recursively, that way looping over the whole object. At each step, it checks the type of an object it has stepped into. If it is a complex number or a float, it rounds it. If it is an int and the requested method is rounding to significant digits, it rounds it, too. If it is a non-roundable object, it returns it, and if it is a container, it iterates over it - and so on, until each elementary object has been rounded or not.
-
 
 # Examples
 
