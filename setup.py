@@ -13,7 +13,7 @@ extras_requirements = {
 
 setuptools.setup(
     name="rounding",
-    version="0.2.0",
+    version="0.2.1",
     author="Ruud van der Ham & Nyggus",
     author_email="nyggus@gmail.com",
     description="A tool for rounding floats in complex structures",
