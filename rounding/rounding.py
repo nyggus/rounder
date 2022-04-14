@@ -72,9 +72,9 @@ def signif(x, digits):
     """
     if x == 0:
         return 0
-    if not isinstance(x, numbers.Number):
+    if not isinstance(x, numbers.Number) or isinstance(x, complex):
         raise NonNumericTypeError(
-            f"x must be a number, not '{type(x).__name__}'"
+            f"x must be a (non-complex) number, not '{type(x).__name__}'"
         )
     d = math.ceil(math.log10(abs(x)))
     power = digits - d
