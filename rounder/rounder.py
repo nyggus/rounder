@@ -13,37 +13,41 @@ class NonNumericTypeError(Exception):
     pass
 
 
-def _do(func, value, digits, use_copy):
-    def convert(value):
-        if hasattr(value, "__dict__"):
-            convert(value.__dict__)
-            return value
-        if isinstance(value, complex):
+class NonCallableError(Exception):
+    pass
+
+
+def _do(func, obj, digits, use_copy):
+    def convert(obj):
+        if hasattr(obj, "__dict__"):
+            convert(obj.__dict__)
+            return obj
+        if isinstance(obj, complex):
             # this has to be checked before the Number check,
             # as complex is a Number
-            return convert(value.real) + convert(value.imag) * 1j
-        if isinstance(value, numbers.Number):
-            return func(value, *digits)
-        if isinstance(value, list):
-            value[:] = list(map(convert, value))
-            return value
-        if isinstance(value, (tuple, set, frozenset)):
-            return type(value)(convert(list(value)))
-        if isinstance(value, dict):
-            value.update(zip(value.keys(), convert(list(value.values()))))
-            return value  
-        if isinstance(value, array.array):
-            value[:] = array.array(value.typecode, convert(value.tolist()))
-            return value
+            return convert(obj.real) + convert(obj.imag) * 1j
+        if isinstance(obj, numbers.Number):
+            return func(obj, *digits)
+        if isinstance(obj, list):
+            obj[:] = list(map(convert, obj))
+            return obj
+        if isinstance(obj, (tuple, set, frozenset)):
+            return type(obj)(convert(list(obj)))
+        if isinstance(obj, dict):
+            obj.update(zip(obj.keys(), convert(list(obj.values()))))
+            return obj
+        if isinstance(obj, array.array):
+            obj[:] = array.array(obj.typecode, convert(obj.tolist()))
+            return obj
 
-        return value
+        return obj
 
     if use_copy:
         try:
-            value = copy.deepcopy(value)
+            obj = copy.deepcopy(obj)
         except TypeError:
             raise UnpickableObjectError()
-    return convert(value)
+    return convert(obj)
 
 
 def signif(x, digits):
@@ -85,7 +89,7 @@ def signif(x, digits):
     return shifted / magnitude
 
 
-def round_object(value, digits=None, use_copy=False):
+def round_object(obj, digits=None, use_copy=False):
     """Round numbers in a Python object.
 
     Args:
@@ -109,16 +113,16 @@ def round_object(value, digits=None, use_copy=False):
     >>> round_object(obj, 2)
     {'number': 12.32, 'string': 'whatever', 'list': [122.45, 0.01]}
     """
-    return _do(builtins.round, value, [digits], use_copy)
+    return _do(builtins.round, obj, [digits], use_copy)
 
 
-def ceil_object(value, use_copy=False):
+def ceil_object(obj, use_copy=False):
     """Round numbers in a Python object, using the ceiling algorithm.
 
     This means rounding to the closest greater integer.
 
     Args:
-        x (any): any Python object
+        obj (any): any Python object
         use_copy (bool, optional): use a deep copy or work with the original
             object? Defaults to False, in which case mutable objects (a list
             or a dict, for instance) will be affect inplace.
@@ -136,16 +140,16 @@ def ceil_object(value, use_copy=False):
     >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
     >>> ceil_object(obj)
     {'number': 13, 'string': 'whatever', 'list': [123, 1]}"""
-    return _do(math.ceil, value, [], use_copy)
+    return _do(math.ceil, obj, [], use_copy)
 
 
-def floor_object(value, use_copy=False):
+def floor_object(obj, use_copy=False):
     """Round numbers in a Python object, using the floor algorithm.
 
     This means rounding to the closest smaller integer.
 
     Args:
-        x (any): any Python object
+        obj (any): any Python object
         use_copy (bool, optional): use a deep copy or work with the original
             object? Defaults to False, in which case mutable objects (a list
             or a dict, for instance) will be affect inplace.
@@ -164,14 +168,14 @@ def floor_object(value, use_copy=False):
     >>> floor_object(obj)
     {'number': 12, 'string': 'whatever', 'list': [122, 0]}
     """
-    return _do(math.floor, value, [], use_copy)
+    return _do(math.floor, obj, [], use_copy)
 
 
-def signif_object(value, digits=3, use_copy=False):
+def signif_object(obj, digits=3, use_copy=False):
     """Round numbers in a Python object to requested significant digits.
 
     Args:
-        x (any): any Python object
+        obj (any): any Python object
         digits (int, optional): number of digits.
         use_copy (bool, optional): use a deep copy or work with the original
             object? Defaults to False, in which case mutable objects (a list
@@ -200,7 +204,42 @@ def signif_object(value, digits=3, use_copy=False):
     >>> signif_object(obj, 3)
     {'number': 12.3, 'string': 'whatever', 'list': [122.0, 0.01]}
     """
-    return _do(signif, value, [digits], use_copy)
+    return _do(signif, obj, [digits], use_copy)
+
+
+def map_object(map_function, obj, use_copy=False):
+    """Maps recursively a Python object to a given function.
+
+    Args:
+        map_function: function that converts a number and returns a number
+        obj (any): any Python object
+        use_copy (bool, optional): use a deep copy or work with the original
+            object? Defaults to False, in which case mutable objects (a list
+            or a dict, for instance) will be affect inplace.
+
+    Returns:
+        any: the object with values mapped with the given map_function
+
+    >>> map_object(abs, -1)
+    1
+    >>> map_object(abs, [-2, -1, 0, 1, 2])
+    [2, 1, 0, 1, 2]
+    >>> round_object(
+    ...     map_object(
+    ...         math.sin,
+    ...         {0:0, 90: math.radians(90), 180: math.radians(180), 270: math.radians(270)}),
+    ...     3
+    ... )
+    {0: 0.0, 90: 1.0, 180: 0.0, 270: -1.0}
+    >>> map_object(abs, "string")
+    'string'
+    >>> obj = {'number': 12.323, 'string': 'whatever', 'list': [122.45, .01]}
+    >>> map_object(lambda x: signif(x**.5, 3), obj)
+    {'number': 3.51, 'string': 'whatever', 'list': [11.1, 0.1]}
+    """
+    if not callable(map_function):
+        raise NonCallableError
+    return _do(map_function, obj, [], use_copy)
 
 
 if __name__ == "__main__":

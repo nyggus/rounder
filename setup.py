@@ -12,14 +12,14 @@ extras_requirements = {
 }
 
 setuptools.setup(
-    name="rounding",
-    version="0.2.1",
+    name="rounder",
+    version="0.3.1",
     author="Ruud van der Ham & Nyggus",
     author_email="nyggus@gmail.com",
-    description="A tool for rounding floats in complex structures",
+    description="A tool for rounding numbers in complex Python objects",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/nyggus/rounding",
+    url="https://github.com/nyggus/rounder",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
