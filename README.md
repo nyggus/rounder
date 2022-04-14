@@ -6,12 +6,16 @@ The package is useful mainly for presentation purposes, but in some cases, it ca
 
 `rounder` offers you four functions for rounding complex objects:
 
-* `round_object(x, digits=0, use_copy=False)`, which rounds `x` to `digits` decimal places
-* `floor_object(x, use_copy=False)`, which rounds `x` down to the nearest integer
-* `ceil_object(x, use_copy=False)`, which rounds `x` up to the nearest integer
-* `signif_object(x, digits, use_copy=False)`, which rounds `x` to `digits` significant digits
+* `round_object(obj, digits=0, use_copy=False)`, which rounds `x` to `digits` decimal places
+* `floor_object(obj, use_copy=False)`, which rounds `x` down to the nearest integer
+* `ceil_object(obj, use_copy=False)`, which rounds `x` up to the nearest integer
+* `signif_object(obj, digits, use_copy=False)`, which rounds `x` to `digits` significant digits
 
-but it also offers a function for rounding numbers to significant digits:
+In addition, `rounder` comes with a generalized function:
+
+* `map_obj(func, obj, use_copy=False)`, which runs callable `func`, which takes a number as an argument and returns a number, to all numbers across the object.
+
+`rounder` also offers a function for rounding numbers to significant digits:
 
 * `signif(x, digits)`, which rounds `x` (either an int or a float) to `digits` significant digits
 
@@ -152,6 +156,42 @@ And you will get this:
 
 Piece of cake! Note that we used `use_copy=True`, which means that `rounded_x` is a deepcopy of `x`, so the original dictionary has not been affected anyway.
 
+
+### `map_object`
+
+In addition, `rounder` offers you a `map_object()` function, which enables you to run any function that takes a number and returns a number for all numbers in an object. This works like the following:
+
+```python
+>>> xy = {"x": [12, 33.3, 45.5, 3543.22], "y": [.45, .3554, .55223, .9911], "expl": "x and y values"}
+>>> r.round_object(r.map_object(lambda x: x**3/(1 - 1/x), xy, use_copy=True), 4, use_copy=True)
+{'x': [1885.0909, 38069.258, 96313.1475, 44495587353.9829], 'y': [-0.0746, -0.0248, -0.2077, -108.4126], 'expl': 'x and y values'}
+
+```
+
+You would have achieved the same result had you used `round` inside the `lambda` body:
+
+```python
+>>> r.map_object(lambda x: round(x**3/(1 - 1/x), 4), xy, use_copy=True)
+{'x': [1885.0909, 38069.258, 96313.1475, 44495587353.9829], 'y': [-0.0746, -0.0248, -0.2077, -108.4126], 'expl': 'x and y values'}
+
+```
+
+The latter approach, actually, will be quicker, as the full recursion is used just once, not twice, as it was done in the former example.
+
+
+If the function takes additional arguments, you can use a wrapper function to overcome this issue:
+
+```python
+>>> def forget(something): pass
+>>> def fun(x, to_forget):
+...     forget(to_forget)
+...     return x**2
+>>> def wrapper(x):
+...     return fun(x, "this can be forgotten")
+>>> r.map_object(wrapper, [2, 2, [3, 3, ], {"a": 5}])
+[4, 4, [9, 9], {'a': 25}]
+
+```
 
 # Examples
 
