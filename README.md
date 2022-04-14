@@ -193,6 +193,14 @@ If the function takes additional arguments, you can use a wrapper function to ov
 
 ```
 
+Or even:
+
+```python
+>>> r.map_object(lambda x: fun(x, "this can be forgotten"), [2, 2, [3, 3, ], {"a": 5}])
+[4, 4, [9, 9], {'a': 25}]
+
+```
+
 # Examples
 
 First of all, all these functions will work the very same way as their original counterparts (not for `signif`, which does not have one):
