@@ -235,8 +235,6 @@ def test_for_complex_numbers():
 
 
 def test_signif_floats():
-    assert r.signif(1.444555) == 1.44
-
     assert r.signif(1.444555, 1) == 1.0
     assert r.signif(1.444555, 2) == 1.4
     assert r.signif(1.444555, 3) == 1.44
@@ -248,8 +246,6 @@ def test_signif_floats():
 
 
 def test_signif_ints():
-    assert r.signif(1444555) == 1440000
-
     assert r.signif(1444555, 1) == 1000000
     assert r.signif(1444555, 2) == 1400000
     assert r.signif(1444555, 3) == 1440000
@@ -261,26 +257,18 @@ def test_signif_ints():
 
 
 def test_signif_exception():
-    with pytest.raises(
-        r.NonNumericTypeError, match="must be an int or a float"
-    ):
-        r.signif("string")
+    with pytest.raises(r.NonNumericTypeError):
+        r.signif("string", 3)
 
-    with pytest.raises(
-        r.NonNumericTypeError, match="must be an int or a float"
-    ):
-        r.signif([2.12])
+    with pytest.raises(r.NonNumericTypeError):
+        r.signif([2.12], 3)
 
-    with pytest.raises(
-        r.NonNumericTypeError, match="must be an int or a float"
-    ):
-        r.signif((1,))
+    with pytest.raises(r.NonNumericTypeError):
+        r.signif((1,), 3)
 
 
 def test_with_unpickable_objects():
     gen = (i**2 for i in range(10))
-    with pytest.raises(
-        r.UnpickableObjectError, match="cannot pickle 'generator' object"
-    ):
+    with pytest.raises(r.UnpickableObjectError):
         _ = r.round_object(gen, use_copy=True)
     _ = r.round_object(gen, use_copy=False)
