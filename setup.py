@@ -7,6 +7,7 @@ extras_requirements = {
     "dev": [
         "wheel",
         "black",
+        "pytest",
     ],
 }
 
