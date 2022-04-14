@@ -1,4 +1,5 @@
-from .rounding import (
+from .rounder import (
+    map_object,
     round_object,
     floor_object,
     ceil_object,
@@ -6,4 +7,5 @@ from .rounding import (
     signif,
     UnpickableObjectError,
     NonNumericTypeError,
+    NonCallableError,
 )

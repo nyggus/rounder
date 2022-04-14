@@ -1,8 +1,10 @@
 import pytest
-import rounding as r
+import rounder as r
 import random
 from copy import deepcopy
 from math import ceil, floor
+
+from rounder.rounder import map_object
 
 
 def test_randomized_tests_round_ceil_floor_object(n, limits, digits_range):
@@ -277,20 +279,66 @@ def test_with_unpickable_objects():
 def test_with_callable():
     f = lambda x: x
     assert callable(r.round_object(f))
-    def f(): 
+
+    def f():
         pass
+
     x = {"items": [1.1222, 1.343434], "function": f}
     assert callable(x["function"])
-    
+
     x_rounded = r.round_object(x, 2, use_copy=True)
     assert callable(x_rounded["function"])
-    
+
     x_ceil = r.ceil_object(x, use_copy=True)
     assert callable(x_ceil["function"])
-    
+
     x_floor = r.floor_object(x, use_copy=True)
     assert callable(x_floor["function"])
-    
-    x_signif = r.floor_object(x, 3, use_copy=True)
+
+    x_signif = r.signif_object(x, 3, use_copy=True)
     assert callable(x_signif["function"])
-    
+
+
+def test_map_object_basic():
+    x = [1.12, 1.13]
+    assert r.map_object(lambda x: x, x, False) is x
+    assert r.map_object(lambda x: x, x, True) is not x
+    assert r.map_object(lambda x: x, x, True) == x
+
+
+def test_map_object_exception():
+    with pytest.raises(r.NonCallableError):
+        r.map_object(2, 2)
+    with pytest.raises(r.NonCallableError):
+        r.map_object((lambda x: x)(2), 2)
+    with pytest.raises(r.NonCallableError):
+        r.map_object([], [2, 2])
+
+
+def test_map_object_dicts_lists():
+    obj = {
+        "list": [1.44, 2.67, 3.334, 6.665],
+        "main value": 5.55,
+        "explanation": "to be filled in",
+    }
+    negative_reversed_obj = r.signif_object(
+        r.map_object(lambda x: -1 / x, obj, True), 5
+    )
+    assert negative_reversed_obj == {
+        "list": [-0.69444, -0.37453, -0.29994, -0.15004],
+        "main value": -0.18018,
+        "explanation": "to be filled in",
+    }
+
+
+def test_map_object_squared(complex_object):
+    squared_complex_object = r.round_object(
+        r.map_object(lambda x: x * x, complex_object, True), 3
+    )
+    assert squared_complex_object["a"] == 149.382
+    assert squared_complex_object["e"] == {
+        "ea": 0.001,
+        "eb": {8.994, 1.777},
+        "ec": {"eca": 2.451, "ecb": 3.118},
+    }
+    assert squared_complex_object["d"] == [1.262, 0.001]
