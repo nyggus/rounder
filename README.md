@@ -1,6 +1,6 @@
 # `rounding`: Rounding of numbers in complex Python objects
 
-`rounding` is a lightweight package for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines any number of such objects in any nested structure. The code is organized as a Python package that can be installed from PyPi (`pip install rounding`), but as it is a one-file package, you can simply download the main module ([rounding.py](build/lib/rounding/rounding.py)) and use it directly in your project.
+`rounding` is a lightweight package for rounding float numbers in complex structures, such as dictionaries, lists, tuples, and sets, and any complex object that combines any number of such objects in any nested structure. The code is organized as a Python (Python >= 3.6 is required) package that can be installed from PyPi (`pip install rounding`), but as it is a one-file package, you can simply download the main module ([rounding.py](build/lib/rounding/rounding.py)) and use it directly in your project.
 
 The package is useful mainly for presentation purposes, but in some cases, it can be useful in other situations as well.
 
