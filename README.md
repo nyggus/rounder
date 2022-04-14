@@ -28,7 +28,7 @@ You can use `signif` in a simple way:
 
 The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original object; no such effect, of course, will occur for immutable types (e.g., tuples and sets). To overcome this effect, simply use `use_copy=True` in the above functions for rounding objects (not in `signif`). If you do so, the function will create a copy of the object and work (and return) its deepcopy, not the original object.
 
-While you can use `rounding` functions for rounding floats, this does not make much sense, as they will be rather slower than the builtin `round` and `math`'s `ceil` and `floor`. Likewise, to round a number to significant digits, you should use `signif` instead of `signif_object`, also for performance purposes.
+You can use `rounding` functions for rounding floats, but do remember that their behavior is slightly different than that of their `builtin` and `math` counterparts, as they do not throw an exception when a non-number object is used.
 
 You can round a list, a tuple, a set (including a frozenset), a float `array.array`, and a dict:
 
@@ -81,8 +81,9 @@ array('f', [1.100000023841858, 2.4000000953674316])
 This is seldom what you want to achieve when rounding numbers, so more often than not, before rounding an array, you should make it a list or a tuple:
 
 ```python
->>> r.round_object(list(arr), 1)
-[1.1, 2.4]
+>>> arr = array.array("d", (1.122, 2.4434))
+>>> r.round_object(arr, 1)
+array('d', [1.1, 2.4])
 
 ```
 
@@ -166,8 +167,6 @@ First of all, all these functions will work the very same way as their original 
 
 ```
 
-But please remember that the builtin `round` and `math`'s `ceil` and `floor` will be quicker than their `rounding` counterparts.
-
 ### Immutable types
 
 `rounding` does work with immutable types! It simply creates a new object, with rounded numbers:
@@ -175,13 +174,13 @@ But please remember that the builtin `round` and `math`'s `ceil` and `floor` wil
 ```python
 >>> x = {1.12, 4.555}
 >>> r.round_object(x)
-{1.0, 5.0}
+{1, 5}
 >>> r.round_object(frozenset(x))
-frozenset({1.0, 5.0})
+frozenset({1, 5})
 >>> r.round_object((1.12, 4.555))
-(1.0, 5.0)
+(1, 5)
 >>> r.round_object(({1.1, 1.2}, frozenset({1.444, 2.222})))
-({1.0}, frozenset({1.0, 2.0}))
+({1}, frozenset({1, 2}))
 
 ```
 
@@ -231,7 +230,7 @@ But you have to remember that when you request a deepcopy (with `use_copy=True`)
 >>> gen_2_copied_rounded = r.round_object(gen_2, use_copy=True)
 Traceback (most recent call last):
     ...
-rounding.rounding.UnpickableObjectError: cannot pickle 'generator' object
+rounding.rounding.UnpickableObjectError
 
 ```
 
