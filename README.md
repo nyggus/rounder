@@ -28,7 +28,7 @@ You can use `signif` in a simple way:
 
 The package is simple to use, but you have to remember that when you're working with mutable objects, such as dicts or lists, rounding them for printing purposes will affect the original object; no such effect, of course, will occur for immutable types (e.g., tuples and sets). To overcome this effect, simply use `use_copy=True` in the above functions for rounding objects (not in `signif`). If you do so, the function will create a copy of the object and work (and return) its deepcopy, not the original object.
 
-While you can use `rounding` functions for rounding floats, this does not make much sense, as they will be rather slower than the builtin `round` and `math`'s `ceil` and `floor`. Likewise, to round a number to significant digits, you should use `signif` instead of `signif_object`, also for performance purposes.
+You can use `rounding` functions for rounding floats, but do remember that their behavior is slightly different than that of their `builtin` and `math` counterparts, as they do not throw an exception when a non-number object is used.
 
 You can round a list, a tuple, a set (including a frozenset), a float `array.array`, and a dict:
 
@@ -81,8 +81,9 @@ array('f', [1.100000023841858, 2.4000000953674316])
 This is seldom what you want to achieve when rounding numbers, so more often than not, before rounding an array, you should make it a list or a tuple:
 
 ```python
->>> r.round_object(list(arr), 1)
-[1.1, 2.4]
+>>> arr = array.array("d", (1.122, 2.4434))
+>>> r.round_object(arr, 1)
+array('d', [1.1, 2.4])
 
 ```
 
@@ -149,8 +150,6 @@ And you will get this:
 
 Piece of cake! Note that we used `use_copy=True`, which means that `rounded_x` is a deepcopy of `x`, so the original dictionary has not been affected anyway.
 
-Of course, you can achieve it in the same way yourself, as the design of the code is not too complicated. All these functions use the same class, `Rounder`, which works recursively, that way looping over the whole object. At each step, it checks the type of an object it has stepped into. If it is a complex number or a float, it rounds it. If it is an int and the requested method is rounding to significant digits, it rounds it, too. If it is a non-roundable object, it returns it, and if it is a container, it iterates over it - and so on, until each elementary object has been rounded or not.
-
 
 # Examples
 
@@ -166,8 +165,6 @@ First of all, all these functions will work the very same way as their original 
 
 ```
 
-But please remember that the builtin `round` and `math`'s `ceil` and `floor` will be quicker than their `rounding` counterparts.
-
 ### Immutable types
 
 `rounding` does work with immutable types! It simply creates a new object, with rounded numbers:
@@ -175,13 +172,13 @@ But please remember that the builtin `round` and `math`'s `ceil` and `floor` wil
 ```python
 >>> x = {1.12, 4.555}
 >>> r.round_object(x)
-{1.0, 5.0}
+{1, 5}
 >>> r.round_object(frozenset(x))
-frozenset({1.0, 5.0})
+frozenset({1, 5})
 >>> r.round_object((1.12, 4.555))
-(1.0, 5.0)
+(1, 5)
 >>> r.round_object(({1.1, 1.2}, frozenset({1.444, 2.222})))
-({1.0}, frozenset({1.0, 2.0}))
+({1}, frozenset({1, 2}))
 
 ```
 
@@ -231,7 +228,7 @@ But you have to remember that when you request a deepcopy (with `use_copy=True`)
 >>> gen_2_copied_rounded = r.round_object(gen_2, use_copy=True)
 Traceback (most recent call last):
     ...
-rounding.rounding.UnpickableObjectError: cannot pickle 'generator' object
+rounding.rounding.UnpickableObjectError
 
 ```
 
@@ -252,4 +249,4 @@ The package is covered with unit `pytest`s, located in the tests/ folder. In add
 
 ## OS
 
-The package is OS-independent. Its releases are checked in a local machine, on Windows 10 and Ubuntu 20.04 for Windows, and on a Red Hat Linux server.
+The package is OS-independent. Its releases are checked in a local machine, on Windows 10 and Ubuntu 20.04 for Windows.

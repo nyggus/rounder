@@ -7,13 +7,14 @@ extras_requirements = {
     "dev": [
         "wheel",
         "black",
+        "pytest",
     ],
 }
 
 setuptools.setup(
     name="rounding",
-    version="0.1.0",
-    author="Nyggus",
+    version="0.2.0",
+    author="Ruud van der Ham & Nyggus",
     author_email="nyggus@gmail.com",
     description="A tool for rounding floats in complex structures",
     long_description=long_description,
@@ -24,9 +25,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ],
-    install_requires=[
-        "easycheck",
     ],
     python_requires=">=3.6",
     extras_require=extras_requirements,
