@@ -18,7 +18,7 @@ setuptools.setup(
     author_email="nyggus@gmail.com",
     description="A tool for rounding floats in complex structures",
     long_description=long_description,
-    long_description_content_type="text/x-md",
+    long_description_content_type="text/markdown",
     url="https://github.com/nyggus/rounding",
     packages=setuptools.find_packages(),
     classifiers=[
