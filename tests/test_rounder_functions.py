@@ -342,3 +342,33 @@ def test_map_object_squared(complex_object):
         "ec": {"eca": 2.451, "ecb": 3.118},
     }
     assert squared_complex_object["d"] == [1.262, 0.001]
+
+
+def test_with_class_instance():
+    class A:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    a = A(
+        x=10.0001,
+        y=(44.4444, 55.5555, 66.6666, {"item1": 456.654, "item2": 90.0004}),
+    )
+    assert r.round_object(a.x, 0, True) == 10
+    assert r.round_object(a.y[:3], 0, True) == (44, 56, 67)
+    assert r.round_object(a.y[3], 0, True) == {"item1": 457, "item2": 90}
+
+    a_copy = r.signif_object(a, 4, True)
+    assert a_copy.x == 10
+    assert a_copy.y[:3] == (44.44, 55.56, 66.67)
+    assert a_copy.y[3] == {"item1": 456.7, "item2": 90}
+
+    # Note that you cannot create a copy of a class instance's attribute
+    # and change it inplace in the instance:
+    _ = r.map_object(lambda x: x * 2, a_copy.x)
+    assert a_copy.x != 20 and a_copy.x == 10
+
+    _ = r.ceil_object(a)
+    assert a.x == 11
+    assert a.y[:3] == (45, 56, 67)
+    assert a.y[3] == {"item1": 457, "item2": 91}

@@ -1,8 +1,8 @@
-import copy
-import numbers
-import builtins
-import math
 import array
+import builtins
+import copy
+import math
+import numbers
 
 
 class UnpickableObjectError(Exception):
@@ -93,7 +93,7 @@ def round_object(obj, digits=None, use_copy=False):
     """Round numbers in a Python object.
 
     Args:
-        x (any): any Python object
+        obj (any): any Python object
         digits (int, optional): number of digits. Defaults to 0.
         use_copy (bool, optional): use a deep copy or work with the original
             object? Defaults to False, in which case mutable objects (a list

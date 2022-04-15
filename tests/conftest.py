@@ -27,7 +27,7 @@ def complex_object():
     obj = {
         "a": 12.22221111,
         "string": "something nice, ha?",
-        "callable": lambda x: x**2,
+        "callable": lambda x: x ** 2,
         "b": 2,
         "c": 1.222,
         "d": [1.12343, 0.023492],
