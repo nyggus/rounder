@@ -403,3 +403,35 @@ def test_for_namedtuples():
     assert r.map_object(lambda x: r.signif(x * 2, 2), x2) == X(
         a=24.0, b=[88.0, 110.0, 130.0], c={"item1": 910.0, "item2": 180.0}
     )
+
+
+def test_for_NamedTuples():
+    from typing import NamedTuple
+
+    X1 = NamedTuple("X1", [("a", float), ("b", tuple), ("c", dict)])
+
+    x1 = X1(12.12, 13.13, 14.94)
+    x1_rounded_copy = r.round_object(x1, 0, True)
+    assert x1_rounded_copy == X1(12, 13, 15)
+    x1_rounded_no_copy = r.round_object(x1, 0, False)
+    assert x1_rounded_no_copy == X1(12, 13, 15)
+    assert x1 == X1(12.12, 13.13, 14.94)
+
+    X2 = NamedTuple("X2", [("a", float), ("b", tuple), ("c", dict)])
+    x2 = X2(
+        a=12.13,
+        b=[44.4444, 55.5555, 66.6666],
+        c={"item1": 457.1212, "item2": 90.0001},
+    )
+
+    assert r.round_object(x2.a, 0) == 12
+    assert r.round_object(x2.b, 0) == [44, 56, 67]
+    assert r.round_object(x2.c, 0) == {"item1": 457, "item2": 90}
+
+    assert r.signif_object(x2, 4) == X2(
+        a=12.13, b=[44.0, 56.0, 67.0], c={"item1": 457.0, "item2": 90.0}
+    )
+
+    assert r.map_object(lambda x: r.signif(x * 2, 2), x2) == X2(
+        a=24.0, b=[88.0, 110.0, 130.0], c={"item1": 910.0, "item2": 180.0}
+    )
