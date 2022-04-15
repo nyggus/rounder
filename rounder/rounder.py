@@ -1,5 +1,6 @@
 import array
 import builtins
+import collections
 import copy
 import math
 import numbers
@@ -19,9 +20,6 @@ class NonCallableError(Exception):
 
 def _do(func, obj, digits, use_copy):
     def convert(obj):
-        if hasattr(obj, "__dict__"):
-            convert(obj.__dict__)
-            return obj
         if isinstance(obj, complex):
             # this has to be checked before the Number check,
             # as complex is a Number
@@ -31,13 +29,23 @@ def _do(func, obj, digits, use_copy):
         if isinstance(obj, list):
             obj[:] = list(map(convert, obj))
             return obj
-        if isinstance(obj, (tuple, set, frozenset)):
-            return type(obj)(convert(list(obj)))
-        if isinstance(obj, dict):
+        if isinstance(obj, tuple):
+            if hasattr(obj, "_fields"):  # it's a namedtuple
+                return obj._replace(**convert(obj._asdict()))
+            else:
+                return tuple(convert(list(obj)))
+        if isinstance(obj, set):
+            return set(convert(list(obj)))
+        if isinstance(obj, frozenset):
+            return frozenset(convert(list(obj)))
+        if isinstance(obj, (dict, collections.OrderedDict)):
             obj.update(zip(obj.keys(), convert(list(obj.values()))))
             return obj
         if isinstance(obj, array.array):
             obj[:] = array.array(obj.typecode, convert(obj.tolist()))
+            return obj
+        if hasattr(obj, "__dict__"):
+            convert(obj.__dict__)
             return obj
 
         return obj
