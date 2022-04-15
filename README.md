@@ -36,7 +36,7 @@ The package is simple to use, but you have to remember that when you're working 
 
 You can use `rounder` functions for rounding floats, but do remember that their behavior is slightly different than that of their `builtin` and `math` counterparts, as they do not throw an exception when a non-number object is used.
 
-You can round a list, a tuple, a set (including a frozenset), a float `array.array`, and a dict:
+You can round a list, a tuple, a set (including a frozenset), a double `array.array`, a dict, and even a class instance:
 
 ```python
 >>> r.round_object([1.122, 2.4434], 1)
@@ -55,41 +55,46 @@ You can round a list, a tuple, a set (including a frozenset), a float `array.arr
 >>> r.round_object({"1": 1.122, "q":2.4434}, 1)
 {'1': 1.1, 'q': 2.4}
 
+>>> import array
+>>> arr = array.array("d", (1.122, 2.4434))
+>>> r.round_object(arr, 1)
+array('d', [1.1, 2.4])
+
 ```
 
-Do remember, however, that `array.array` works in its own way, so rounding its values is a tricky thing:
+As mentioned above, you can use `rounder` functions also for class instances:
 
 ```python
->>> import array
->>> arr = array.array("f", (1.122, 2.4434))
->>> r.round_object(arr, 1) == array.array("f", (1.1, 2.4))
+>>> class ClassWithNumbers:
+...     def __init__(self, x, y):
+...         self.x = x
+...         self.y = y
+>>> inst = ClassWithNumbers(
+...     x = 20.22045,
+...     y={"list": [34.554, 666.777],
+...     "tuple": (.111210, 343.3333)}
+... )
+
+>>> inst_copy = r.round_object(inst, 1, True)
+>>> inst_copy.x
+20.2
+>>> inst_copy.y
+{'list': [34.6, 666.8], 'tuple': (0.1, 343.3)}
+>>> id(inst) != id(inst_copy)
+True
+
+>>> inst_no_copy = r.round_object(inst, 1, False)
+>>> id(inst) == id(inst_no_copy)
 True
 
 ```
 
-Perfect... But:
+You can of course round a particular attribute of the class instance:
 
 ```python
->>> array.array("f", (1.1, 2.4))
-array('f', [1.100000023841858, 2.4000000953674316])
-
-```
-
-and indeed:
-
-
-```python
->>> r.round_object(arr, 1)
-array('f', [1.100000023841858, 2.4000000953674316])
-
-```
-
-This is seldom what you want to achieve when rounding numbers, so more often than not, before rounding an array, you should make it a list or a tuple:
-
-```python
->>> arr = array.array("d", (1.122, 2.4434))
->>> r.round_object(arr, 1)
-array('d', [1.1, 2.4])
+>>> _ = r.round_object(inst_copy.y, 0, False)
+>>> inst_copy.y
+{'list': [35.0, 667.0], 'tuple': (0.0, 343.0)}
 
 ```
 
