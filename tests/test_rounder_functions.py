@@ -435,3 +435,42 @@ def test_for_NamedTuples():
     assert r.map_object(lambda x: r.signif(x * 2, 2), x2) == X2(
         a=24.0, b=[88.0, 110.0, 130.0], c={"item1": 910.0, "item2": 180.0}
     )
+
+
+def test_for_OrderedDict():
+    from collections import OrderedDict
+
+    d = OrderedDict(a=1.1212, b=55.559)
+
+    d_rounded_copy = r.round_object(d, 2, True)
+    assert d_rounded_copy == OrderedDict(a=1.12, b=55.56)
+    assert d == OrderedDict(a=1.1212, b=55.559)
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == OrderedDict(a=1.12, b=55.56)
+    assert d == OrderedDict(a=1.12, b=55.56)
+
+    d = OrderedDict(
+        a=1.1212,
+        b=55.559,
+        c={"item1": "string", "item2": 3434.3434},
+        d=OrderedDict(d1=3434.3434, d2=[99.99, 1.2323 - 2j]),
+    )
+
+    d_rounded_copy = r.round_object(d, 2, True)
+    assert d_rounded_copy == OrderedDict(
+        [
+            ("a", 1.12),
+            ("b", 55.56),
+            ("c", {"item1": "string", "item2": 3434.34}),
+            (
+                "d",
+                OrderedDict([("d1", 3434.34), ("d2", [99.99, (1.23 - 2j)])]),
+            ),
+        ]
+    )
+    assert d != d_rounded_copy
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == d_rounded_copy
+    assert d_rounded_no_copy == d
