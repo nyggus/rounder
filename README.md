@@ -312,6 +312,22 @@ rounder.rounder.UnpickableObjectError
 This is a rare situation, however, to include unpickable objects in an object to be rounded. Remember about the above limitations, and you can either work with the original object (not its copy, so with default `use_copy=False`), or change it so that all its elements can be pickled.
 
 
+### List of types handled by `rounder`
+
+* `int`
+* `float`
+* `complex`
+* `set`
+* `frozenset`
+* `list`
+* `tuple`
+* `collections.namedtuple`
+* `typing.NamedTuple`
+* `dict`
+* `OrderedDict`
+* `array.array`
+
+
 ### NumPy and Pandas
 
 `rounder` does not work with `numpy` and `pandas`: they have their own builtin methods for rounding, and using them will be much quicker.
