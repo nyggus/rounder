@@ -40,8 +40,6 @@ def _do(func, obj, digits, use_copy):
             return set(convert(list(obj)))
         if isinstance(obj, frozenset):
             return frozenset(convert(list(obj)))
-        if isinstance(obj, collections.Counter):
-            return obj
         if isinstance(obj, collections.abc.Mapping):
             for k, v in obj.items():
                 obj[k] = convert(obj[k])
