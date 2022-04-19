@@ -366,7 +366,7 @@ def test_with_class_instance():
     # Note that you cannot create a copy of a class instance's attribute
     # and change it inplace in the instance:
     _ = r.map_object(lambda x: x * 2, a_copy.x)
-    assert a_copy.x != 20 and a_copy.x == 10
+    assert a_copy.x == 10
 
     _ = r.ceil_object(a)
     assert a.x == 11
@@ -474,3 +474,94 @@ def test_for_OrderedDict():
     d_rounded_no_copy = r.round_object(d, 2, False)
     assert d_rounded_no_copy == d_rounded_copy
     assert d_rounded_no_copy == d
+
+
+def test_for_defaultdict():
+    from collections import defaultdict
+
+    d = defaultdict(list)
+    d["a"] = 1.1212
+    d["b"] = 55.55656
+    d["c"] = 0.104343
+
+    d_rounded_copy = r.round_object(d, 2, True)
+
+    assert d_rounded_copy == defaultdict(a=1.12, b=55.56, c=0.10)
+    assert d != d_rounded_copy
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == defaultdict(a=1.12, b=55.56, c=0.10)
+    assert d == d_rounded_no_copy
+
+
+def test_for_UserDict():
+    from collections import UserDict
+
+    d = UserDict(dict(a=1.1212, b=55.559))
+
+    d_rounded_copy = r.round_object(d, 2, True)
+    assert d_rounded_copy == UserDict(dict(a=1.12, b=55.56))
+    assert d == UserDict(dict(a=1.1212, b=55.559))
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == UserDict(dict(a=1.12, b=55.56))
+    assert d == UserDict(dict(a=1.12, b=55.56))
+
+    d = UserDict(
+        dict(
+            a=1.1212,
+            b=55.559,
+            c={"item1": "string", "item2": 3434.3434},
+            d=UserDict(dict(d1=3434.3434, d2=[99.996, 1.2323 - 2j])),
+        )
+    )
+
+    d_rounded_copy = r.round_object(d, 2, True)
+    d_rounded_copy = UserDict(
+        dict(
+            a=1.12,
+            b=55.56,
+            c={"item1": "string", "item2": 3434.34},
+            d=UserDict(dict(d1=3434.34, d2=[100.0, 1.23 - 2j])),
+        )
+    )
+
+    assert d != d_rounded_copy
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == d_rounded_copy
+    assert d_rounded_no_copy == d
+
+
+def test_for_deque():
+    from collections import deque
+
+    d = deque([1.1222, 3.9989, 4.005])
+
+    d_rounded_copy = r.round_object(d, 2, True)
+
+    assert d_rounded_copy == deque([1.12, 4.0, 4.0])
+    assert d != d_rounded_copy
+
+    d_rounded_no_copy = r.round_object(d, 2, False)
+    assert d_rounded_no_copy == deque([1.12, 4.0, 4.0])
+    assert d == d_rounded_no_copy
+
+
+def test_for_Counter():
+    from collections import Counter
+
+    d = Counter([1.1222, 1.2222, 4.005])
+
+    d_rounded_copy = r.map_object(lambda x: 2 * x, d, True)
+    assert d_rounded_copy == Counter({1.1222: 2, 1.2222: 2, 4.005: 2})
+
+    d_rounded_no_copy = r.map_object(lambda x: 2 * x, d, False)
+    assert d_rounded_no_copy is d
+
+    d = Counter([1, 1, 2] + [5] * 12222)
+    d_rounded_copy = r.round_object(d, 2, True)
+    assert d_rounded_copy == d
+    d_rounded_copy = r.signif_object(d, 2, True)
+    assert d_rounded_copy != d
+    assert d_rounded_copy == Counter({1: 2, 2: 1, 5: 12000})

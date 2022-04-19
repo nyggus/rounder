@@ -30,21 +30,30 @@ def _do(func, obj, digits, use_copy):
             obj[:] = list(map(convert, obj))
             return obj
         if isinstance(obj, tuple):
-            if hasattr(obj, "_fields"):  # it's a namedtuple
+            if hasattr(obj, "_fields"):
+                # it's a collections.namedtuple or a typing.NamedTuple
                 return obj._replace(**convert(obj._asdict()))
             else:
+                # regular tuple
                 return tuple(convert(list(obj)))
         if isinstance(obj, set):
             return set(convert(list(obj)))
         if isinstance(obj, frozenset):
             return frozenset(convert(list(obj)))
-        if isinstance(obj, (dict, collections.OrderedDict)):
-            obj.update(zip(obj.keys(), convert(list(obj.values()))))
+        if isinstance(obj, collections.abc.Mapping):
+            for k, v in obj.items():
+                obj[k] = convert(obj[k])
             return obj
         if isinstance(obj, array.array):
             obj[:] = array.array(obj.typecode, convert(obj.tolist()))
             return obj
+        if isinstance(obj, collections.deque):
+            for i, elem in enumerate(obj):
+                obj[i] = convert(elem)
+            return obj
         if hasattr(obj, "__dict__"):
+            # this should be at the end as some of the above types
+            # have a __dict__ attribute
             convert(obj.__dict__)
             return obj
 
