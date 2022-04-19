@@ -224,7 +224,7 @@ Or even:
 
 ```
 
-# Examples
+# Types that `rounder` works with
 
 First of all, all these functions will work the very same way as their original counterparts (not for `signif`, which does not have one):
 
@@ -238,7 +238,31 @@ First of all, all these functions will work the very same way as their original 
 
 ```
 
-### Immutable types
+The power of `rounder`, however, comes with working with many other types, and in particular, complex objects that contains them. `rounder` will work with the following types:
+
+* `int`
+* `float`
+* `complex`
+* `set` and `frozenset`
+* `list`
+* `tuple`
+* `collections.namedtuple` and `typing.NamedTuple`
+* `dict`
+* `collections.defaultdict`
+* `collections.OrderedDict`
+* `collections.UserDict`
+* `collections.Counter`
+* `collections.deque`
+* `array.array`
+
+> Note that `rounder` will work with any type that follows the `collections.abc.Mapping` interface.
+
+> `collections.Counter`: Beware that using `rounder` for this type will affect the _values_ of the counter, which originally represent counts. In most cases, that would mean no effect on such counts (for `rounder.round_object()`, `rounder.ceil_object()` and `rounder.floor_object()`), but `rounder.signif_object()` and `rounder.map_object()` can change the counts. In rare situations, you can keep float values as values in the counter, then `rounder` will work as expected.
+
+> If `rounder` meets a type that is not recognized as any of the given above, it will simply return it untouched.
+
+
+## Immutable types
 
 `rounder` does work with immutable types! It simply creates a new object, with rounded numbers:
 
@@ -267,7 +291,7 @@ Remember, however, that in the case of sets, you can get a shorter set then the 
 ```
 
 
-### Generators and other unpickable objects
+## Generators and other unpickable objects
 
 This should be an extremely rare situation to request to round an object that contains a generator, or any other unpickable object. But if you happen to be in such a situation, be aware of some limitations of `rounder` functions.
 
@@ -312,32 +336,26 @@ rounder.rounder.UnpickableObjectError
 This is a rare situation, however, to include unpickable objects in an object to be rounded. Remember about the above limitations, and you can either work with the original object (not its copy, so with default `use_copy=False`), or change it so that all its elements can be pickled.
 
 
-### List of types handled by `rounder`
+## NumPy and Pandas
 
-* `int`
-* `float`
-* `complex`
-* `set`
-* `frozenset`
-* `list`
-* `tuple`
-* `collections.namedtuple`
-* `typing.NamedTuple`
-* `dict`
-* `OrderedDict`
-* `array.array`
+`rounder` does not work with `numpy` and `pandas`: they have their own builtin methods for rounding, and using them will be much quicker. However, if for some reason a `rounder` function meets a `pandas` or a `numpy` object on its way, like here:
 
+```python
+r.round_object(dict(
+    values=np.array([1.223, 3.3332, 2.323]),
+    something_else="whatever else"
+)
 
-### NumPy and Pandas
+```
 
-`rounder` does not work with `numpy` and `pandas`: they have their own builtin methods for rounding, and using them will be much quicker.
+then it will simply return the object untouched.
 
 
-## Testing
+# Testing
 
 The package is covered with unit `pytest`s, located in the [tests/ folder](tests/). In addition, the package uses `doctest`s, which are collected here, in this README, and in the main module, [rounder.py](rounder/rounder.py). These `doctest`s serve mainly documentation purposes, and since they can be run any time during development and before each release, they help to check whether all the examples are correct and work fine.
 
 
-## OS
+# OS
 
 The package is OS-independent. Its releases are checked in local machines, on Windows 10 and Ubuntu 20.04 for Windows, and in Pythonista for iPad.
