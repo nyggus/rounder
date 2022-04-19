@@ -38,8 +38,3 @@ def complex_object():
         },
     }
     return deepcopy(obj)
-
-
-@pytest.fixture
-def methods():
-    return "round", "ceil", "floor", "signif"
