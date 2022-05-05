@@ -1,10 +1,9 @@
+import asyncio
 import pytest
 import rounder as r
 import random
 from copy import deepcopy
 from math import ceil, floor
-
-from rounder.rounder import map_object
 
 
 def test_randomized_tests_round_ceil_floor_object(n, limits, digits_range):
@@ -23,12 +22,12 @@ def test_use_copy_with_lists_and_dicts():
     )
 
     for x in items:
-        x_rounder_copy = r.round_object(x, 1, True)
-        assert x_rounder_copy != x
-        x_rounder_no_copy = r.round_object(x, 1, False)
-        assert x_rounder_no_copy == x_rounder_copy
-        assert x_rounder_no_copy is not x_rounder_copy
-        assert x_rounder_no_copy is x
+        x_rounded_copy = r.round_object(x, 1, True)
+        assert x_rounded_copy != x
+        x_rounded_no_copy = r.round_object(x, 1, False)
+        assert x_rounded_no_copy == x_rounded_copy
+        assert x_rounded_no_copy is not x_rounded_copy
+        assert x_rounded_no_copy is x
 
 
 def test_no_copy_with_lists_and_dicts():
@@ -38,8 +37,8 @@ def test_no_copy_with_lists_and_dicts():
     )
 
     for x in items:
-        x_rounder = r.round_object(x, 1)
-        assert x_rounder is x
+        x_rounded = r.round_object(x, 1)
+        assert x_rounded is x
 
 
 def test_copy_with_tuples_and_sets():
@@ -49,9 +48,9 @@ def test_copy_with_tuples_and_sets():
     )
 
     for x in items:
-        x_rounder = r.round_object(x, 1, True)
-        assert x_rounder is not x
-        assert x_rounder != x
+        x_rounded = r.round_object(x, 1, True)
+        assert x_rounded is not x
+        assert x_rounded != x
 
 
 def test_no_copy_with_tuples_and_sets():
@@ -61,9 +60,9 @@ def test_no_copy_with_tuples_and_sets():
     )
 
     for x in items:
-        x_rounder = r.round_object(x, 1, False)
-        assert x_rounder is not x
-        assert x_rounder != x
+        x_rounded = r.round_object(x, 1, False)
+        assert x_rounded is not x
+        assert x_rounded != x
 
 
 def test_randomized_tests_using_copy_lists_tuples_sets(
@@ -565,3 +564,220 @@ def test_for_Counter():
     d_rounded_copy = r.signif_object(d, 2, True)
     assert d_rounded_copy != d
     assert d_rounded_copy == Counter({1: 2, 2: 1, 5: 12000})
+
+
+def test_copy_for_frozenset():
+    x = frozenset([
+        222.222, 333.333, 1.000045, "Shout Bamalama!",
+        222.222, 333.333, 1.000045, "Shout Bamalama"
+    ])
+
+    x_rounded = r.round_object(x, 1, True)
+    assert x_rounded is not x
+    assert x_rounded != x
+
+
+def test_no_copy_for_frozenset():
+    x = frozenset([
+        222.222, 333.333, 1.000045, "Shout Bamalama!",
+        222.222, 333.333, 1.000045, "Shout Bamalama"
+    ])
+
+    x_rounded = r.round_object(x, 1, False)
+    assert x_rounded is not x
+    assert x_rounded == frozenset({1.0, 'Shout Bamalama!', 333.3, 'Shout Bamalama', 222.2})
+
+def test_copy_for_bool():
+    x = True
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is not x
+    assert x_rounded == True
+
+    y = False
+    y_rounded = r.round_object(y, use_copy=True)
+    assert y_rounded is not y
+    assert y_rounded == False
+
+
+def test_no_copy_for_bool():
+    x = True
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is not x
+    assert x_rounded == True
+
+    y = False
+    y_rounded = r.round_object(y, use_copy=False)
+    assert y_rounded is not y
+    assert y_rounded == False
+
+
+def test_copy_for_Decimal():
+    from decimal import Decimal
+    x = Decimal(1) / Decimal(7)
+    x_rounded = r.round_object(x, 4, use_copy=True)
+    assert x is not x_rounded
+    assert x_rounded == Decimal('0.1429')
+
+
+def test_no_copy_for_Decimal():
+    from decimal import Decimal
+    x = Decimal(1) / Decimal(7)
+    x_rounded = r.round_object(x, 4, use_copy=False)
+    assert x is not x_rounded
+    assert x_rounded == Decimal('0.1429')
+
+
+def test_copy_for_Fraction():
+    from fractions import Fraction
+    x = Fraction(1, 7)
+    x_rounded = r.round_object(x, 4, use_copy=True)
+    assert x is not x_rounded
+    assert x_rounded == Fraction(1429, 10000)
+
+
+def test_no_copy_for_Fraction():
+    from fractions import Fraction
+    x = Fraction(1, 7)
+    x_rounded = r.round_object(x, 4, use_copy=False)
+    assert x is not x_rounded
+    assert x_rounded == Fraction(1429, 10000)
+
+
+def test_copy_for_None():
+    x = None
+    x_rounded = r.round_object(x, 4, use_copy=True)
+    assert x is x_rounded # as both are None
+
+
+def test_no_copy_for_None():
+    x = None
+    x_rounded = r.round_object(x, 4, use_copy=False)
+    assert x is x_rounded
+
+
+def test_copy_for_coroutine():
+    async def ff():
+        await asyncio.sleep(.05)
+    x_rounded = r.round_object(ff, use_copy=True)
+    assert x_rounded is ff
+
+
+def test_no_copy_for_coroutine():
+    async def ff():
+        await asyncio.sleep(.05)
+    x_rounded = r.round_object(ff, use_copy=False)
+    assert x_rounded is ff # copies are not created in the case of coroutines
+
+
+def test_copy_for_BuiltinFunctionType():
+    x = sum
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is sum
+
+
+def test_no_copy_for_BuiltinFunctionType():
+    x = sum
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is sum
+
+
+def test_copy_for_NotImplementedType():
+    x = NotImplemented
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is NotImplemented
+
+
+def test_no_copy_for_NotImplementedType():
+    x = NotImplemented
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is NotImplemented
+
+
+def test_copy_for_MethodDescriptorType():
+    x = str.join
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is x
+
+
+def test_no_copy_for_MethodDescriptorType():
+    x = str.join
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x
+
+
+def test_copy_for_EllipsisType():
+    x = ...
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is x
+
+
+def test_no_copy_for_EllipsisType():
+    x = ...
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x
+
+
+def test_copy_for_EllipsisType():
+    """Frames are unpickable, so copies cannot be created.
+    
+    Thus, use_copy=True will not work.
+    """
+    import inspect
+    x = inspect.currentframe()
+    with pytest.raises(r.UnpickableObjectError):
+        r.round_object(x, use_copy=True)
+
+
+def test_no_copy_for_EllipsisType():
+    import inspect
+    x = inspect.currentframe()
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x
+
+
+def test_copy_for_MemberDescriptorType():
+    class Whatever:
+        __slots__ = ('whatever', )
+    
+    x = Whatever.__dict__["whatever"]
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is x
+    
+
+def test_no_copy_for_MemberDescriptorType():
+    class Whatever:
+        __slots__ = ('whatever', )
+    
+    x = Whatever.__dict__["whatever"]
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x
+
+
+def test_copy_for_BuiltinMethodType():
+    from datetime import date
+    x = date.today
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is x
+
+
+def test_no_copy_for_BuiltinMethodType():
+    from datetime import date
+    x = date.today
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x
+
+
+def test_copy_for_MethodWrapperType():
+    class Whatever:
+        pass
+    x = Whatever.__eq__
+    x_rounded = r.round_object(x, use_copy=True)
+    assert x_rounded is x
+
+
+def test_no_copy_for_MethodWrapperType():
+    class Whatever:
+        pass
+    x = Whatever.__eq__
+    x_rounded = r.round_object(x, use_copy=False)
+    assert x_rounded is x

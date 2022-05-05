@@ -243,14 +243,14 @@ The power of `rounder`, however, comes with working with many other types, and i
 * `int`
 * `float`
 * `complex`
+* `decimal.Decimal`
+* `fractions.Fraction`
 * `set` and `frozenset`
 * `list`
 * `tuple`
 * `collections.namedtuple` and `typing.NamedTuple`
 * `dict`
-* `collections.defaultdict`
-* `collections.OrderedDict`
-* `collections.UserDict`
+* `collections.defaultdict`, `collections.OrderedDict` and `collections.UserDict`
 * `collections.Counter`
 * `collections.deque`
 * `array.array`
@@ -293,7 +293,7 @@ Remember, however, that in the case of sets, you can get a shorter set then the 
 
 ## Generators and other unpickable objects
 
-This should be an extremely rare situation to request to round an object that contains a generator, or any other unpickable object. But if you happen to be in such a situation, be aware of some limitations of `rounder` functions.
+This should be a rare situation to request to round an object that contains a generator or any other unpickable object. But if you happen to be in such a situation, be aware of some limitations of `rounder` functions.
 
 As a rule, mainly for safety, generators are returned unchanged. This is a safe approach for the simple reason that you often choose to use a generator instead of, say, a list when the data you're processing can be too large for your machine's memory to handle. So:
 
