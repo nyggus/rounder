@@ -717,7 +717,7 @@ def test_no_copy_for_EllipsisType():
     assert x_rounded is x
 
 
-def test_copy_for_EllipsisType():
+def test_copy_for_FrameType():
     """Frames are unpickable, so copies cannot be created.
     
     Thus, use_copy=True will not work.
@@ -728,7 +728,7 @@ def test_copy_for_EllipsisType():
         r.round_object(x, use_copy=True)
 
 
-def test_no_copy_for_EllipsisType():
+def test_no_copy_for_FrameType():
     import inspect
     x = inspect.currentframe()
     x_rounded = r.round_object(x, use_copy=False)
