@@ -781,3 +781,8 @@ def test_no_copy_for_MethodWrapperType():
     x = Whatever.__eq__
     x_rounded = r.round_object(x, use_copy=False)
     assert x_rounded is x
+
+
+def test_signif_edge_case():
+    assert r.signif(123123123123.0002, 7) == 123123100000
+    assert r.signif_object(123123123123.0002, 7) == 123123100000
