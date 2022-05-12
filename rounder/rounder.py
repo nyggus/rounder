@@ -182,7 +182,10 @@ def signif(x, digits):
     power = digits - d
     magnitude = math.pow(10, power)
     shifted = builtins.round(x * magnitude)
-    return shifted / magnitude
+    if x >= math.pow(10, digits):
+        return round(shifted / magnitude)
+    else:
+        return shifted / magnitude
 
 
 def round_object(obj, digits=None, use_copy=False):
