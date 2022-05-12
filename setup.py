@@ -13,7 +13,7 @@ extras_requirements = {
 
 setuptools.setup(
     name="rounder",
-    version="0.5.3",
+    version="0.5.4",
     author="Ruud van der Ham & Nyggus",
     author_email="nyggus@gmail.com",
     description="A tool for rounding numbers in complex Python objects",
@@ -24,7 +24,7 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        "Operating System :: OS Independent",p
     ],
     python_requires=">=3.6",
     extras_require=extras_requirements,
