@@ -50,6 +50,9 @@ def _do(func, obj, digits, use_copy):
     def convert_list(obj):
         obj[:] = list(map(convert, obj))
         return obj
+    
+    def convert_map(obj):
+        return map(convert, obj)
 
     def convert_namedtuple(obj):
         return obj._replace(**convert(obj._asdict()))
@@ -94,6 +97,8 @@ def _do(func, obj, digits, use_copy):
             # placed at the end as some of the above (derived) types might have a __dict__
             convert_dict(obj.__dict__)
             return obj
+        if isinstance(obj, map):
+            return map()
 
         return obj
 
@@ -120,6 +125,7 @@ def _do(func, obj, digits, use_copy):
             Counter: convert_dict,
             array.array: convert_array,
             deque: convert_deque,
+            map: convert_map,
             str: lambda obj: obj,
             range: lambda obj: obj,
             types_lookup("NoneType"): lambda obj: obj,
