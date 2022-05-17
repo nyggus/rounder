@@ -5,7 +5,6 @@ from .rounder import (
     ceil_object,
     signif_object,
     signif,
-    UnpickableObjectError,
     NonNumericTypeError,
     NonCallableError,
 )
