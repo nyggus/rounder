@@ -193,7 +193,9 @@ def signif(x, digits):
     if x == 0:
         return 0
     if not isinstance(x, Number) or isinstance(x, complex):
-        raise NonNumericTypeError(f"x must be a (non-complex) number, not '{type(x).__name__}'")
+        raise NonNumericTypeError(
+            f"x must be a (non-complex) number, not '{type(x).__name__}'"
+        )
     d = math.ceil(math.log10(abs(x)))
     power = digits - d
     magnitude = math.pow(10, power)
