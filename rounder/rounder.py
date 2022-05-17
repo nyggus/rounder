@@ -51,7 +51,7 @@ def _do(func, obj, digits, use_copy):
 
     def convert_map(obj):
         if use_copy:
-            obj_copy = copy.copy(obj)
+            obj_copy = copy.deepcopy(obj)
             return map(convert, obj_copy)
         return map(convert, obj)
 
@@ -108,7 +108,7 @@ def _do(func, obj, digits, use_copy):
         if hasattr(obj, "__dict__"):
             # placed at the end as some of the above (derived) types might have a __dict__
             if use_copy:
-                obj_copy = copy.deepcopy(obj)
+                obj_copy = copy.copy(obj)
                 for k, v in obj_copy.__dict__.items():
                     obj_copy.__dict__[k] = convert(v)
                 return obj_copy
