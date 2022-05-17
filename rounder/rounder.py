@@ -18,10 +18,6 @@ from fractions import Fraction
 dispatch_table_store = {}
 
 
-class UnpickableObjectError(Exception):
-    pass
-
-
 class NonNumericTypeError(Exception):
     pass
 
@@ -48,22 +44,39 @@ def _do(func, obj, digits, use_copy):
         return convert(obj.real) + convert(obj.imag) * 1j
 
     def convert_list(obj):
+        if use_copy:
+            return type(obj)(map(convert, obj))
         obj[:] = list(map(convert, obj))
         return obj
+
+    def convert_map(obj):
+        if use_copy:
+            obj_copy = copy.deepcopy(obj)
+            return map(convert, obj_copy)
+        return map(convert, obj)
+
+    def convert_generator(obj):
+        return map(convert, obj)
 
     def convert_namedtuple(obj):
         return obj._replace(**convert(obj._asdict()))
 
     def convert_dict(obj):
+        if use_copy:
+            return {k: convert(v) for k, v in obj.items()}
         for k, v in obj.items():
-            obj[k] = convert(obj[k])
+            obj[k] = convert(v)
         return obj
 
     def convert_array(obj):
+        if use_copy:
+            return array.array(obj.typecode, convert(obj.tolist()))
         obj[:] = array.array(obj.typecode, convert(obj.tolist()))
         return obj
 
     def convert_deque(obj):
+        if use_copy:
+            return type(obj)(map(convert, obj))
         for i, elem in enumerate(obj):
             obj[i] = convert(elem)
         return obj
@@ -90,8 +103,15 @@ def _do(func, obj, digits, use_copy):
             return convert_array(obj)
         if isinstance(obj, deque):
             return convert_deque(obj)
+        if isinstance(obj, map):
+            return convert_map(obj)
         if hasattr(obj, "__dict__"):
             # placed at the end as some of the above (derived) types might have a __dict__
+            if use_copy:
+                obj_copy = copy.copy(obj)
+                for k, v in obj_copy.__dict__.items():
+                    obj_copy.__dict__[k] = convert(v)
+                return obj_copy
             convert_dict(obj.__dict__)
             return obj
 
@@ -100,12 +120,13 @@ def _do(func, obj, digits, use_copy):
     def convert(obj):
         if type(obj) in (float, int):
             return func(obj, *digits)
+
         return dispatch_table.get(type(obj), convert_rest)(obj)
 
     try:
-        dispatch_table = dispatch_table_store[(func, *digits)]
+        dispatch_table = dispatch_table_store[(func, *digits, use_copy)]
     except KeyError:
-        dispatch_table = dispatch_table_store[(func, *digits)] = {
+        dispatch_table = dispatch_table_store[(func, *digits, use_copy)] = {
             bool: lambda obj: func(obj, *digits),
             Decimal: lambda obj: func(obj, *digits),
             Fraction: lambda obj: func(obj, *digits),
@@ -120,10 +141,12 @@ def _do(func, obj, digits, use_copy):
             Counter: convert_dict,
             array.array: convert_array,
             deque: convert_deque,
+            map: convert_map,
+            filter: convert_map,
+            range: convert_map,
             str: lambda obj: obj,
-            range: lambda obj: obj,
             types_lookup("NoneType"): lambda obj: obj,
-            types_lookup("GeneratorType"): lambda obj: obj,
+            types_lookup("GeneratorType"): convert_generator,
             types_lookup("FunctionType"): lambda obj: obj,
             types_lookup("LambdaType"): lambda obj: obj,
             types_lookup("CoroutineType"): lambda obj: obj,
@@ -142,11 +165,6 @@ def _do(func, obj, digits, use_copy):
             types_lookup("MemberDescriptorType"): lambda obj: obj,
         }
 
-    if use_copy:
-        try:
-            obj = copy.deepcopy(obj)
-        except TypeError:
-            raise UnpickableObjectError()
     return convert(obj)
 
 
@@ -162,7 +180,7 @@ def signif(x, digits):
     >>> signif(1.2222, 3)
     1.22
     >>> signif(12222, 3)
-    12200.0
+    12200
     >>> signif(1, 3)
     1.0
     >>> signif(123.123123, 5)
@@ -170,7 +188,7 @@ def signif(x, digits):
     >>> signif(123.123123, 3)
     123.0
     >>> signif(123.123123, 1)
-    100.0
+    100
     """
     if x == 0:
         return 0
@@ -279,7 +297,7 @@ def signif_object(obj, digits=3, use_copy=False):
     >>> signif_object(.00001219, 3)
     1.22e-05
     >>> signif_object(1212.0, 3)
-    1210.0
+    1210
     >>> signif_object("string", 1)
     'string'
     >>> signif_object(["Shout", "Bamalama"], 5)
