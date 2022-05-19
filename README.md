@@ -264,7 +264,7 @@ The power of `rounder`, however, comes with working with many other types, and i
 
 > If `rounder` meets a type that is not recognized as any of the given above, it will simply return it untouched.
 
-> Do note that in the case of `range` objects, generators and generator functions, the `rounder` functions will change the type of the object, returning a `map` object. This should not affect the final result the using these objects, unless you directly use their types somehow.
+> "Warning": In the case of `range` objects, generators and generator functions, the `rounder` functions will change the type of the object, returning a `map` object. This should not affect the final result the using these objects, unless you directly use their types somehow.
 
 
 ## Immutable types
