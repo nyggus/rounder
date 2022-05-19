@@ -55,6 +55,9 @@ def _do(func, obj, digits, use_copy):
             return map(convert, obj_copy)
         return map(convert, obj)
 
+    def convert_filter(obj):
+        return filter(bool, convert_map(obj))  # bool of map object is always True
+
     def convert_generator(obj):
         return map(convert, obj)
 
@@ -63,10 +66,12 @@ def _do(func, obj, digits, use_copy):
 
     def convert_dict(obj):
         if use_copy:
-            return {k: convert(v) for k, v in obj.items()}
+            return_obj = type(obj)()
+        else:
+            return_obj = obj
         for k, v in obj.items():
-            obj[k] = convert(v)
-        return obj
+            return_obj[k] = convert(v)
+        return return_obj
 
     def convert_array(obj):
         if use_copy:
@@ -142,7 +147,7 @@ def _do(func, obj, digits, use_copy):
             array.array: convert_array,
             deque: convert_deque,
             map: convert_map,
-            filter: convert_map,
+            filter: convert_filter,
             range: convert_map,
             str: lambda obj: obj,
             types_lookup("NoneType"): lambda obj: obj,
@@ -193,9 +198,7 @@ def signif(x, digits):
     if x == 0:
         return 0
     if not isinstance(x, Number) or isinstance(x, complex):
-        raise NonNumericTypeError(
-            f"x must be a (non-complex) number, not '{type(x).__name__}'"
-        )
+        raise NonNumericTypeError(f"x must be a (non-complex) number, not '{type(x).__name__}'")
     d = math.ceil(math.log10(abs(x)))
     power = digits - d
     magnitude = math.pow(10, power)
