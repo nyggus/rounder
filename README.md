@@ -28,7 +28,7 @@ You can use `signif` in a simple way:
 >>> r.signif(12.1239112, 5)
 12.124
 >>> r.signif(121212.12, 3)
-121000.0
+121000
 
 ```
 
@@ -254,12 +254,17 @@ The power of `rounder`, however, comes with working with many other types, and i
 * `collections.Counter`
 * `collections.deque`
 * `array.array`
+* `map`
+* `filter`
+* generators and generator functions
 
 > Note that `rounder` will work with any type that follows the `collections.abc.Mapping` interface.
 
 > `collections.Counter`: Beware that using `rounder` for this type will affect the _values_ of the counter, which originally represent counts. In most cases, that would mean no effect on such counts (for `rounder.round_object()`, `rounder.ceil_object()` and `rounder.floor_object()`), but `rounder.signif_object()` and `rounder.map_object()` can change the counts. In rare situations, you can keep float values as values in the counter, then `rounder` will work as expected.
 
 > If `rounder` meets a type that is not recognized as any of the given above, it will simply return it untouched.
+
+> "Warning": In the case of `range` objects, generators and generator functions, the `rounder` functions will change the type of the object, returning a `map` object. This should not affect the final result the using these objects, unless you directly use their types somehow.
 
 
 ## Immutable types
@@ -289,51 +294,6 @@ Remember, however, that in the case of sets, you can get a shorter set then the 
 {2}
 
 ```
-
-
-## Generators and other unpickable objects
-
-This should be a rare situation to request to round an object that contains a generator or any other unpickable object. But if you happen to be in such a situation, be aware of some limitations of `rounder` functions.
-
-As a rule, mainly for safety, generators are returned unchanged. This is a safe approach for the simple reason that you often choose to use a generator instead of, say, a list when the data you're processing can be too large for your machine's memory to handle. So:
-
-```python
->>> gen = (i**2 for i in range(10))
->>> rounded_gen = r.round_object(gen)
->>> rounded_gen is gen
-True
->>> next(gen)
-0
->>> next(gen)
-1
->>> next(rounded_gen)
-4
-
-```
-
-You will get the same result for `range`:
-
-```python
->>> ran = range(10)
->>> r.round_object(ran) is ran
-True
-
-```
-
-But you have to remember that when you request a deepcopy (with `use_copy=True`), all elements to be rounded need to be pickable:
-
-```python
->>> gen_2 = (i**2 for i in range(10))
->>> gen_2_copied_rounded = r.round_object(gen_2, use_copy=True)
-Traceback (most recent call last):
-    ...
-rounder.rounder.UnpickableObjectError
-
-```
-
-`range()` is pickable, so you can request a deepcopy of it in `rounder` functions. 
-
-This is a rare situation, however, to include unpickable objects in an object to be rounded. Remember about the above limitations, and you can either work with the original object (not its copy, so with default `use_copy=False`), or change it so that all its elements can be pickled.
 
 
 ## NumPy and Pandas
