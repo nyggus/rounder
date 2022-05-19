@@ -496,6 +496,7 @@ def test_for_UserDict():
     d_rounded_copy = r.round_object(d, 2, True)
     assert d_rounded_copy == UserDict(dict(a=1.12, b=55.56))
     assert d == UserDict(dict(a=1.1212, b=55.559))
+    assert type(d_rounded_copy) == UserDict
 
     d_rounded_no_copy = r.round_object(d, 2, False)
     assert d_rounded_no_copy == UserDict(dict(a=1.12, b=55.56))
@@ -521,11 +522,11 @@ def test_for_UserDict():
     )
 
     assert d != d_rounded_copy
-
+    assert type(d_rounded_copy) == UserDict
+    
     d_rounded_no_copy = r.round_object(d, 2, False)
     assert d_rounded_no_copy == d_rounded_copy
     assert d_rounded_no_copy == d
-
 
 def test_for_deque():
     from collections import deque
